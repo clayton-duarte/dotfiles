@@ -24,14 +24,23 @@ From "Development API Tokens" item (ALL fields auto-discovered):
 - If 1Password is unavailable, uses cached values
 
 **Manual refresh (optional):**
-```bash
-~/dotfiles/scripts/secrets.sh
+```fish
+config secrets
+# or
+secrets-refresh
 ```
 
 **Adding new secrets:**
 1. Add field to "Development API Tokens" in 1Password
 2. Open new terminal → automatically loaded!
 3. No code changes or commits needed
+
+**Reinstall symlinks:**
+```fish
+config install
+# or
+dotfiles-install
+```
 
 ## Git Configuration ✅
 
@@ -182,8 +191,8 @@ op account list
 ```
 
 ### 2. Test Secrets Loading
-```bash
-~/dotfiles/scripts/secrets.sh
+```fish
+secrets-refresh
 cat ~/.config/fish/secrets.fish  # Should show your tokens
 ```
 
@@ -245,9 +254,11 @@ op account list
 
 # Re-authenticate
 eval $(op signin --account my.1password.com)
+```
 
+```fish
 # Reload secrets
-~/dotfiles/scripts/secrets.sh
+secrets-refresh
 ```
 
 ### SSH Not Working

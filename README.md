@@ -24,7 +24,7 @@ Personal development environment configuration synced across machines.
 git clone https://github.com/yourusername/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 
-# Run bootstrap (installs everything)
+# One command to set up everything
 ./bootstrap.sh
 ```
 
@@ -37,15 +37,36 @@ This will:
 6. Configure git
 7. Set fish as default shell
 
-### Existing Machine
+**That's it!** After `bootstrap.sh`, all maintenance is done via fish functions.
 
-If dotfiles are already set up:
+### Maintenance Commands (Fish Functions)
 
-```bash
-cd ~/dotfiles
-git pull
-./install.sh  # Re-create symlinks if needed
-./scripts/secrets.sh  # Refresh secrets from 1Password
+After bootstrap, use these fish functions for all operations:
+
+```fish
+# Refresh secrets from 1Password
+config secrets
+
+# Reinstall symlinks
+config install
+
+# Edit dotfiles in VS Code
+config edit
+
+# Manually sync to GitHub
+config sync
+
+# Reload fish config
+config reload
+
+# Show git status
+config status
+```
+
+Or call the functions directly:
+```fish
+secrets-refresh      # Refresh secrets from 1Password
+dotfiles-install     # Create/recreate symlinks
 ```
 
 ## Repository Structure
@@ -112,8 +133,10 @@ echo $OPENAI_API_KEY  # Works immediately
 
 Secrets auto-refresh on every terminal open, but you can force a refresh:
 
-```bash
-~/dotfiles/scripts/secrets.sh
+```fish
+config secrets
+# or
+secrets-refresh
 ```
 
 ## Config Management
