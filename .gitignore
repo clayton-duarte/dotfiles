@@ -3,7 +3,7 @@
 # =============================================================================
 # CRITICAL: Secrets must NEVER be committed to git
 
-# Secrets and tokens
+# Secrets and tokens (actual values, not scripts)
 secrets.fish
 .env
 .env.*
@@ -11,6 +11,10 @@ secrets.fish
 *.pem
 *.p12
 *.pfx
+*secret.txt
+*secrets.txt
+*secret.json
+*secrets.json
 
 # SSH keys (never commit private keys!)
 .ssh/id_*
@@ -20,11 +24,13 @@ secrets.fish
 # 1Password items
 .op/
 
-# API credentials
-*token*
-*secret*
-*password*
-*credential*
+# API credentials (actual files with secrets, not scripts)
+*token.txt
+*token.json
+*password.txt
+*password.json
+*credential.txt
+*credential.json
 
 # Backup files
 *.backup

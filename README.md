@@ -72,10 +72,11 @@ dotfiles/
 
 Every time you open a new terminal, the config automatically:
 
-1. **Fetches** from remote
-2. **Pulls** if behind (auto-updates your config)
-3. **Pushes** if ahead (auto-saves your changes)
-4. **Warns** if diverged (manual git resolution needed)
+1. **Loads secrets** from 1Password (always fresh, never stale!)
+2. **Fetches** dotfiles from remote
+3. **Pulls** if behind (auto-updates your config)
+4. **Pushes** if ahead (auto-saves your changes)
+5. **Warns** if diverged (manual git resolution needed)
 
 No manual intervention needed for normal workflow!
 
@@ -83,30 +84,33 @@ No manual intervention needed for normal workflow!
 
 ### Storing Secrets
 
-Create items in 1Password for your secrets:
+All API tokens should be stored in a single 1Password item called **"Development API Tokens"**:
 
-1. **API Tokens** - Store as "API Credential" type
-   - Artifactory Token
-   - Font Awesome Token
-   - NPM Token
+1. **Create the item** in your Private vault (type: Password)
+2. **Add fields** for each token:
+   - ARTIFACTORY_TOKEN
+   - NPM_TOKEN
+   - (Add more as needed - they're auto-discovered!)
 
-2. **SSH Keys** - Store as "SSH Key" type
-   - Your private keys for git signing
+3. **SSH Keys** - Separate item called "GH SSH Key" (type: SSH Key)
+   - Private key
+   - Public key
 
-### Reference Format
+### Dynamic Token Discovery
 
-Edit [`scripts/secrets.sh`](scripts/secrets.sh:1) to match your 1Password vault structure:
+**No code changes needed when adding tokens!**
+
+The secrets script automatically fetches ALL fields from "Development API Tokens". Just add a new field in 1Password, and it's available on your next terminal open.
 
 ```bash
-op read "op://Vault Name/Item Name/field name"
+# Add OPENAI_API_KEY to 1Password item
+# Open new terminal → automatically loaded!
+echo $OPENAI_API_KEY  # Works immediately
 ```
 
-Example:
-```bash
-op read "op://Private/NPM Token/credential"
-```
+### Manual Refresh (Optional)
 
-### Refreshing Secrets
+Secrets auto-refresh on every terminal open, but you can force a refresh:
 
 ```bash
 ~/dotfiles/scripts/secrets.sh

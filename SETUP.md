@@ -5,22 +5,33 @@ This document shows what's configured in your dotfiles.
 ## 1Password Integration ✅
 
 ### Secrets Configured
-All secrets are fetched from your personal 1Password account (`my.1password.com`, Private vault):
+All secrets are **dynamically fetched** from your personal 1Password account (`my.1password.com`, Private vault):
 
-From "Development API Tokens" item:
-- ✅ `ARTIFACTORY_TOKEN` → `op://Private/Development API Tokens/ARTIFACTORY_TOKEN`
-- ✅ `FONT_AWESOME_TOKEN` → `op://Private/Development API Tokens/FONT_AWESOME_TOKEN`
-- ✅ `NPM_TOKEN` → `op://Private/Development API Tokens/NPM_TOKEN`
-- ✅ `SARDINE_NPM_TOKEN` → `op://Private/Development API Tokens/SARDINE_NPM_TOKEN`
+From "Development API Tokens" item (ALL fields auto-discovered):
+- ✅ `ARTIFACTORY_TOKEN`
+- ✅ `NPM_TOKEN`
+- ✅ **Any new tokens you add** (no code changes needed!)
 
 ### SSH Keys Configured
 - ✅ `GH SSH Key` → `~/.ssh/id_ed25519` (private key)
 - ✅ `GH SSH Key` → `~/.ssh/id_ed25519.pub` (public key)
 
-### How to Refresh Secrets
+### How Secrets Are Loaded
+
+**Automatic on every terminal open:**
+- Secrets are fetched fresh from 1Password
+- Always up-to-date, never stale
+- If 1Password is unavailable, uses cached values
+
+**Manual refresh (optional):**
 ```bash
 ~/dotfiles/scripts/secrets.sh
 ```
+
+**Adding new secrets:**
+1. Add field to "Development API Tokens" in 1Password
+2. Open new terminal → automatically loaded!
+3. No code changes or commits needed
 
 ## Git Configuration ✅
 
