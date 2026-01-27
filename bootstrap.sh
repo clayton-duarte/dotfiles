@@ -79,8 +79,8 @@ echo ""
 
 # 5. Symlink dotfiles
 echo "🔗 Symlinking dotfiles..."
-chmod +x ./install.sh
-./install.sh
+chmod +x ./scripts/install.sh
+./scripts/install.sh
 
 echo ""
 

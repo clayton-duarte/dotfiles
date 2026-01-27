@@ -150,21 +150,27 @@ Plus secrets from `~/.config/fish/secrets.fish`:
 
 ```
 ~/dotfiles/
+├── bootstrap.sh                ✅ Single setup script (run once)
 ├── .config/
 │   └── fish/
-│       └── config.fish          ✅ Fish configuration
+│       └── config.fish         ✅ Fish config + maintenance functions
 ├── .ssh/
-│   └── config                   ✅ SSH hosts configuration
-├── scripts/
-│   ├── macos.sh                ✅ macOS setup script
-│   ├── linux.sh                ✅ Linux setup script
-│   └── secrets.sh              ✅ 1Password secrets loader
-├── bootstrap.sh                ✅ Fresh machine setup
-├── install.sh                  ✅ Symlink creator
+│   └── config                  ✅ SSH hosts configuration
 ├── .gitconfig                  ✅ Git configuration
 ├── .gitignore                  ✅ Security rules
+├── scripts/                    ✅ Helper scripts (bootstrap only)
+│   ├── install.sh              ✅ Symlink creator
+│   ├── secrets.sh              ✅ 1Password secrets loader
+│   ├── macos.sh                ✅ macOS setup script
+│   └── linux.sh                ✅ Linux setup script
 └── README.md                   ✅ Full documentation
 ```
+
+**Root:**
+- Only `bootstrap.sh` (clean!)
+
+**Maintenance:**
+- Fish functions only (no bash scripts to run)
 
 ## Symlinks Created
 

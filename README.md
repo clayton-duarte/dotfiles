@@ -73,21 +73,28 @@ dotfiles-install     # Create/recreate symlinks
 
 ```
 dotfiles/
+├── bootstrap.sh                # ⭐ Single setup script (run once)
 ├── .config/
 │   └── fish/
-│       └── config.fish          # Main fish configuration
+│       └── config.fish         # Fish config (all maintenance functions)
 ├── .ssh/
-│   └── config                   # SSH configuration template
-├── scripts/
-│   ├── macos.sh                # macOS-specific setup
-│   ├── linux.sh                # Linux-specific setup
-│   └── secrets.sh              # 1Password secrets loader
-├── bootstrap.sh                # First-run setup script
-├── install.sh                  # Symlink creator (idempotent)
+│   └── config                  # SSH configuration
 ├── .gitconfig                  # Git configuration
 ├── .gitignore                  # Security-critical!
+├── scripts/                    # Helper scripts (used by bootstrap only)
+│   ├── install.sh              # Creates symlinks
+│   ├── secrets.sh              # Fetches from 1Password
+│   ├── macos.sh                # macOS package installation
+│   └── linux.sh                # Linux package installation
 └── README.md                   # This file
 ```
+
+**Clean root:**
+- `bootstrap.sh` → Single setup script
+- All helper scripts in `scripts/` directory
+
+**After bootstrap:**
+- Use fish functions for all maintenance (no bash scripts needed)
 
 ## Auto-Sync Behavior
 
