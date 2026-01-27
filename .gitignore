@@ -1,0 +1,55 @@
+# =============================================================================
+# Dotfiles .gitignore
+# =============================================================================
+# CRITICAL: Secrets must NEVER be committed to git
+
+# Secrets and tokens
+secrets.fish
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+
+# SSH keys (never commit private keys!)
+.ssh/id_*
+.ssh/*.pem
+.ssh/known_hosts
+
+# 1Password items
+.op/
+
+# API credentials
+*token*
+*secret*
+*password*
+*credential*
+
+# Backup files
+*.backup
+*.backup.*
+.*.swp
+.*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/

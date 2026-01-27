@@ -1,0 +1,30 @@
+[user]
+	email = cpd@duck.com
+	name = cpd
+
+[push]
+	autoSetupRemote = true
+	useForceIfIncludes = true
+
+[core]
+	editor = code --wait
+
+[pull]
+	rebase = true
+
+[merge]
+	ff = false
+
+[rebase]
+	autoStash = true
+
+# SSH commit signing
+[gpg]
+	format = ssh
+	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+
+[commit]
+	gpgsign = true
+
+[user]
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIzlrKAQzna6inWC0rg3wCXgL0i0MzYHLxzt+s2Zf+wW
