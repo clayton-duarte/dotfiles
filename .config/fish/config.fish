@@ -7,6 +7,12 @@
 # Disable Fish greeting
 set fish_greeting
 
+# =============================================================================
+# Theme Settings
+# =============================================================================
+# Disable branch name truncation in agnoster theme
+set -g fish_vcs_branch_name_length 99
+
 # Show neofetch on terminal startup (once per session)
 function __show_neofetch --on-event fish_prompt
     # Only run once per session
