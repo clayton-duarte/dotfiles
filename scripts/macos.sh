@@ -26,6 +26,9 @@ brew "gh"          # GitHub CLI (for pr command)
 brew "fish"        # Fish shell
 brew "n"           # Node version manager
 brew "jq"          # JSON parser (for secrets script)
+
+# Fonts
+cask "font-meslo-lg-nerd-font"  # Powerline fonts for agnoster theme
 EOF
 
 echo "✅ macOS setup complete"

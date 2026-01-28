@@ -25,7 +25,8 @@ case $DISTRO in
             fish \
             curl \
             jq \
-            gh
+            gh \
+            fonts-powerline
         ;;
     fedora|bazzite*)
         echo "📦 Installing essential packages (Fedora/Bazzite)..."
@@ -35,13 +36,15 @@ case $DISTRO in
             fish \
             curl \
             jq \
-            gh || \
+            gh \
+            powerline-fonts || \
         sudo dnf install -y \
             git \
             fish \
             curl \
             jq \
-            gh
+            gh \
+            powerline-fonts
         ;;
     arch|steamos*|holo*)
         echo "📦 Installing essential packages (Arch/SteamOS)..."
@@ -51,11 +54,12 @@ case $DISTRO in
             fish \
             curl \
             jq \
-            github-cli
+            github-cli \
+            powerline-fonts
         ;;
     *)
         echo "⚠️  Unsupported distribution: $DISTRO"
-        echo "Please install git, fish, gh, curl, and jq manually"
+        echo "Please install git, fish, gh, curl, jq, and powerline-fonts manually"
         ;;
 esac
 

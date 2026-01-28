@@ -458,3 +458,13 @@ function fish_greeting --description "HAL 9000 random greeting"
     echo "$Hal: $message"
     set_color normal
 end
+
+# =============================================================================
+# Right Prompt
+# =============================================================================
+
+function fish_right_prompt --description "Show git user and hostname"
+    set git_user (git config user.name 2>/dev/null || echo "?")
+    set host_name (hostname -s)
+    echo "$git_user@$host_name"
+end
