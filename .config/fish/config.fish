@@ -41,10 +41,10 @@ function __dotfiles_sync --on-event fish_prompt --description "Auto-sync dotfile
         return
     end
 
-    # Show simple loader
-    set_color $fish_color_autosuggestion
-    echo -n "⟳ "
-    set_color normal
+    # Start animated spinner in background
+    set -g __spinner_pid 0
+    fish -c 'set frames "⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏"; while true; for frame in $frames; echo -ne "\r\033[K\033[90m$frame\033[0m "; sleep 0.08; end; end' &
+    set -g __spinner_pid (jobs -lp | tail -1)
 
     # Save current directory
     set prev_dir (pwd)
@@ -52,6 +52,7 @@ function __dotfiles_sync --on-event fish_prompt --description "Auto-sync dotfile
 
     # Fetch quietly
     if not git fetch --quiet 2>/dev/null
+        kill $__spinner_pid 2>/dev/null
         cd $prev_dir
         echo -e "\r\033[K⚠️  Dotfiles: Failed to fetch from remote"
         return
@@ -61,6 +62,7 @@ function __dotfiles_sync --on-event fish_prompt --description "Auto-sync dotfile
     if not git diff-index --quiet --cached HEAD -- 2>/dev/null; or not git diff-index --quiet HEAD -- 2>/dev/null
         git add .
         if not git commit -m "Auto-sync from $(hostname) at $(date +%Y-%m-%d\ %H:%M:%S)" --quiet 2>/dev/null
+            kill $__spinner_pid 2>/dev/null
             cd $prev_dir
             echo -e "\r\033[K⚠️  Dotfiles: Failed to commit changes"
             return
@@ -74,25 +76,31 @@ function __dotfiles_sync --on-event fish_prompt --description "Auto-sync dotfile
 
     if test "$local_commit" = "$remote_commit"
         # Up to date - clear the loader
+        kill $__spinner_pid 2>/dev/null
         echo -e "\r\033[K"
     else if test "$local_commit" = "$base_commit"
         # Need to pull
         if not git pull --quiet --rebase 2>/dev/null
+            kill $__spinner_pid 2>/dev/null
             cd $prev_dir
             echo -e "\r\033[K⚠️  Dotfiles: Failed to pull updates"
             return
         end
+        kill $__spinner_pid 2>/dev/null
         echo -e "\r\033[K"
     else if test "$remote_commit" = "$base_commit"
         # Need to push
         if not git push --quiet 2>/dev/null
+            kill $__spinner_pid 2>/dev/null
             cd $prev_dir
             echo -e "\r\033[K⚠️  Dotfiles: Failed to push changes"
             return
         end
+        kill $__spinner_pid 2>/dev/null
         echo -e "\r\033[K"
     else
         # Diverged
+        kill $__spinner_pid 2>/dev/null
         echo -e "\r\033[K⚠️  Dotfiles diverged! Run 'cd ~/dotfiles && git status'"
     end
 
