@@ -23,6 +23,7 @@ fi
 
 # Create secrets.fish file
 SECRETS_FILE="$HOME/.config/fish/secrets.fish"
+mkdir -p "$(dirname "$SECRETS_FILE")"
 cat > "$SECRETS_FILE" << 'EOF'
 # =============================================================================
 # Auto-generated secrets from 1Password

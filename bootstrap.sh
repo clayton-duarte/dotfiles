@@ -84,7 +84,30 @@ chmod +x ./scripts/install.sh
 
 echo ""
 
-# 6. Configure git
+# 6. Set fish as default shell
+echo "🐚 Setting fish as default shell..."
+
+# Get fish path
+FISH_PATH=$(which fish)
+
+# Check if fish is in /etc/shells
+if ! grep -q "$FISH_PATH" /etc/shells 2>/dev/null; then
+    echo "  Adding fish to /etc/shells (requires sudo)..."
+    echo "$FISH_PATH" | sudo tee -a /etc/shells
+fi
+
+# Set fish as default shell
+if [[ "$SHELL" != *"fish"* ]]; then
+    echo "  Setting fish as default shell (requires password)..."
+    chsh -s "$FISH_PATH"
+    echo "✅ Fish set as default shell"
+else
+    echo "✅ Fish is already default shell"
+fi
+
+echo ""
+
+# 7. Configure git
 echo "👤 Configuring git..."
 git config --global user.email "cpd@duck.com"
 git config --global user.name "cpd"
@@ -112,7 +135,7 @@ fi
 echo "✅ Git configured"
 echo ""
 
-# 7. Initialize git repo for dotfiles (if not already initialized)
+# 8. Initialize git repo for dotfiles (if not already initialized)
 if [[ ! -d .git ]]; then
     echo "📦 Initializing git repository..."
     git init

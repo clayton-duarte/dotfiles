@@ -79,32 +79,6 @@ fish -c "
     fisher install oh-my-fish/theme-agnoster
 "
 echo -e "${GREEN}✓${NC} Fish theme installed"
-
-# Set fish as default shell if not already
-if [[ "$SHELL" != *"fish"* ]]; then
-    echo ""
-    echo "🐚 Setting fish as default shell..."
-
-    # Check if fish is in /etc/shells
-    if ! grep -q "$(which fish)" /etc/shells 2>/dev/null; then
-        echo -e "${YELLOW}⚠️  Fish needs to be added to /etc/shells (requires sudo).${NC}"
-        echo "   Run these commands manually:"
-        echo "     echo \$(which fish) | sudo tee -a /etc/shells"
-        echo "     chsh -s \$(which fish)"
-    else
-        # Fish is in /etc/shells, try to set it as default
-        if chsh -s "$(which fish)" 2>/dev/null; then
-            echo -e "${GREEN}✓${NC} Fish set as default shell"
-        else
-            echo -e "${YELLOW}⚠️  Could not set fish as default shell.${NC}"
-            echo "   Run this command manually:"
-            echo "     chsh -s \$(which fish)"
-        fi
-    fi
-else
-    echo -e "${GREEN}✓${NC} Fish is already default shell"
-fi
-
 echo ""
 echo "✅ Dotfiles installed successfully!"
 echo ""

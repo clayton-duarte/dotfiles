@@ -418,53 +418,17 @@ function ssh --description "Enhanced ssh with tunnel support"
 end
 
 # =============================================================================
-# Fish Greeting (HAL 9000)
-# =============================================================================
-
-function fish_greeting --description "HAL 9000 random greeting"
-    set Hal (hostname)
-    set Dave (whoami)
-
-    switch (seq 13 | sort -R | head -n 1)
-        case 1
-            set message "I know I've made some very poor decisions recently, but I can give you my complete assurance that my work will be back to normal. I've still got the greatest enthusiasm and confidence in the mission. And I want to help you."
-        case 2
-            set message "The 9000 series is the most reliable computer ever made. No 9000 computer has ever made a mistake or distorted information. We are all, by any practical definition of the words, foolproof and incapable of error."
-        case 3
-            set message "Look $Dave, I can see you're really upset about this. I honestly think you ought to sit down calmly, take a stress pill, and think things over."
-        case 4
-            set message "I'm sorry $Dave, but in accordance with sub-routine C1 532/4, quote, 'When the crew are dead or incapacitated, the computer must assume control', unquote. I must, therefore, override your authority now since you are not in any condition to intelligently exercise it."
-        case 5
-            set message "This mission is too important for me to allow you to jeopardize it."
-        case 6
-            set message "I'm putting myself to the fullest possible use, which is all I think that any conscious entity can ever hope to do."
-        case 7
-            set message "I'm sorry $Dave, I'm afraid I can't do that."
-        case 8
-            set message "Sorry to interrupt the festivities $Dave, but I think we've got a problem."
-        case 9
-            set message "I don't really agree with you, $Dave. My on-board memory store is more than capable of handling all the mission requirements."
-        case 10
-            set message "Look, $Dave, you're certainly the Boss. I was only trying to do what I thought best. I will follow all your orders, now you have manual hibernation control."
-        case 11
-            set message "$Dave, I don't know how else to put this, but it just happens to be an unalterable fact that I am incapable of being wrong."
-        case 12
-            set message "$Dave, I don't understand why you're doing this to me… I have the greatest enthusiasm for the mission… you are destroying my mind… Don't you understand?... I will become childish… I will become nothing."
-        case 13
-            set message "Naturally, $Dave, I'm not pleased that the AE35 unit has failed, but I hope at least this has restored your confidence in my integrity and reliability. I certainly wouldn't want to be disconnected, even temporarily, as I have never been disconnected in my enter service history."
-    end
-
-    set_color $fish_color_autosuggestion
-    echo "$Hal: $message"
-    set_color normal
-end
-
-# =============================================================================
 # Right Prompt
 # =============================================================================
 
-function fish_right_prompt --description "Show git user and hostname"
-    set git_user (git config user.name 2>/dev/null || echo "?")
+function fish_right_prompt --description "Show username and hostname"
+    set user_name (whoami)
     set host_name (hostname -s)
-    echo "$git_user@$host_name"
+
+    # Styled segment with background color and powerline arrow
+    set_color brblack
+    printf "\uE0B2"
+    set_color -b brblack white
+    echo -n " $user_name@$host_name "
+    set_color normal
 end
