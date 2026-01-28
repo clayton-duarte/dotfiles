@@ -28,6 +28,9 @@ brew "n"           # Node version manager
 brew "jq"          # JSON parser (for secrets script)
 brew "neofetch"    # System info display
 
+# Cloud tools
+cask "google-cloud-sdk"  # Google Cloud SDK for Claude Code (Vertex AI)
+
 # Fonts
 cask "font-meslo-lg-nerd-font"  # Powerline fonts for agnoster theme
 EOF

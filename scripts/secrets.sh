@@ -97,8 +97,32 @@ else
 fi
 
 echo ""
+echo "🔑 Authenticating GitHub CLI..."
+
+# Check if gh CLI is installed
+if command -v gh &> /dev/null; then
+    # Check if already authenticated
+    if ! gh auth status &> /dev/null; then
+        # Fetch token from 1Password and authenticate
+        if op read "op://Private/GitHub CLI Token/password" --account=my.1password.com &> /dev/null; then
+            op read "op://Private/GitHub CLI Token/password" --account=my.1password.com | \
+            gh auth login --with-token 2>/dev/null && \
+            echo "  ✓ GitHub CLI authenticated" || \
+            echo "  ⚠️  GitHub CLI authentication failed"
+        else
+            echo "  ⚠️  GitHub CLI token not found in 1Password"
+        fi
+    else
+        echo "  ✓ GitHub CLI already authenticated"
+    fi
+else
+    echo "  ⚠️  GitHub CLI not installed"
+fi
+
+echo ""
 echo "✅ Secrets loaded successfully"
 echo ""
 echo "📝 Loaded:"
 echo "   - API tokens → ~/.config/fish/secrets.fish"
 echo "   - SSH keys → ~/.ssh/id_ed25519"
+echo "   - GitHub CLI authentication"

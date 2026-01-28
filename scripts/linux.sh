@@ -28,6 +28,20 @@ case $DISTRO in
             gh \
             fonts-powerline \
             neofetch
+
+        # Install Google Cloud SDK
+        echo "📦 Installing Google Cloud SDK..."
+        if ! command -v gcloud &> /dev/null; then
+            echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | \
+            sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+
+            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
+            sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+
+            sudo apt update && sudo apt install -y google-cloud-sdk
+        else
+            echo "✅ Google Cloud SDK already installed"
+        fi
         ;;
     fedora|bazzite*)
         echo "📦 Installing essential packages (Fedora/Bazzite)..."
