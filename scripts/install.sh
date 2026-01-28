@@ -64,6 +64,22 @@ fi
 # link .vimrc
 # link .npmrc
 
+# Install fisher and agnoster theme
+echo ""
+echo "🎨 Setting up fish theme..."
+fish -c "
+    # Install fisher if not present
+    if not functions -q fisher
+        echo '📦 Installing fisher plugin manager...'
+        curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
+    end
+
+    # Install agnoster theme
+    echo '🎨 Installing agnoster theme...'
+    fisher install oh-my-fish/theme-agnoster
+"
+echo -e "${GREEN}✓${NC} Fish theme installed"
+
 # Set fish as default shell if not already
 if [[ "$SHELL" != *"fish"* ]]; then
     echo ""

@@ -171,23 +171,6 @@ git config --global --type bool push.autoSetupRemote true
 git config --global core.editor "code --wait"
 
 # =============================================================================
-# Theme Setup (Agnoster)
-# =============================================================================
-
-# Install fisher if not present
-if not functions -q fisher
-    echo "📦 Installing fisher plugin manager..."
-    curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source
-    fisher install jorgebucaran/fisher
-end
-
-# Install agnoster theme if not present
-if not functions -q fish_prompt | grep -q agnoster
-    echo "🎨 Installing agnoster theme..."
-    fisher install oh-my-fish/theme-agnoster
-end
-
-# =============================================================================
 # Aliases
 # =============================================================================
 alias !! '$history[1]'
