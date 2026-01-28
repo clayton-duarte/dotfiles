@@ -26,6 +26,7 @@ brew "gh"          # GitHub CLI (for pr command)
 brew "fish"        # Fish shell
 brew "n"           # Node version manager
 brew "jq"          # JSON parser (for secrets script)
+brew "neofetch"    # System info display
 
 # Fonts
 cask "font-meslo-lg-nerd-font"  # Powerline fonts for agnoster theme

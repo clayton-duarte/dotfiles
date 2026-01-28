@@ -26,7 +26,8 @@ case $DISTRO in
             curl \
             jq \
             gh \
-            fonts-powerline
+            fonts-powerline \
+            neofetch
         ;;
     fedora|bazzite*)
         echo "📦 Installing essential packages (Fedora/Bazzite)..."
@@ -37,14 +38,16 @@ case $DISTRO in
             curl \
             jq \
             gh \
-            powerline-fonts || \
+            powerline-fonts \
+            neofetch || \
         sudo dnf install -y \
             git \
             fish \
             curl \
             jq \
             gh \
-            powerline-fonts
+            powerline-fonts \
+            neofetch
         ;;
     arch|steamos*|holo*)
         echo "📦 Installing essential packages (Arch/SteamOS)..."
@@ -55,7 +58,8 @@ case $DISTRO in
             curl \
             jq \
             github-cli \
-            powerline-fonts
+            powerline-fonts \
+            neofetch
         ;;
     *)
         echo "⚠️  Unsupported distribution: $DISTRO"

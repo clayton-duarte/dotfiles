@@ -4,6 +4,23 @@
 # This config is managed in ~/dotfiles and symlinked to ~/.config/fish/config.fish
 # Auto-syncs with git on terminal startup
 
+# Disable Fish greeting
+set fish_greeting
+
+# Show neofetch on terminal startup (once per session)
+function __show_neofetch --on-event fish_prompt
+    # Only run once per session
+    if set -q __neofetch_shown
+        return
+    end
+    set -g __neofetch_shown 1
+
+    # Only show if neofetch is installed
+    if command -v neofetch &> /dev/null
+        neofetch
+    end
+end
+
 # =============================================================================
 # Secrets Management Functions
 # =============================================================================
