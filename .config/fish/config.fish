@@ -58,15 +58,13 @@ function __dotfiles_sync --on-event fish_prompt --description "Auto-sync dotfile
         return
     end
 
-    # Check for uncommitted changes (staged or unstaged) and commit them
-    if not git diff-index --quiet --cached HEAD -- 2>/dev/null; or not git diff-index --quiet HEAD -- 2>/dev/null
-        git add .
-        if not git commit -m "Auto-sync from $(hostname) at $(date +%Y-%m-%d\ %H:%M:%S)" --quiet 2>/dev/null
-            kill $__spinner_pid 2>/dev/null
-            cd $prev_dir
-            echo -e "\r\033[K⚠️  Dotfiles: Failed to commit changes"
-            return
-        end
+    # Check for uncommitted changes and commit them
+    set status_output (git status --porcelain 2>/dev/null)
+    if test -n "$status_output"
+        git add . 2>/dev/null
+        # Try to commit, but ignore "nothing to commit" errors
+        git commit -m "Auto-sync from $(hostname) at $(date +%Y-%m-%d\ %H:%M:%S)" --quiet 2>/dev/null
+        # Don't treat "nothing to commit" as an error
     end
 
     # Check git status
