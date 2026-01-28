@@ -53,11 +53,32 @@ if [[ -f "$DOTFILES_DIR/.gitconfig" ]]; then
     link .gitconfig
 fi
 
-# Link SSH config if it exists
-if [[ -f "$DOTFILES_DIR/.ssh/config" ]]; then
-    link .ssh/config
-    chmod 600 "$HOME/.ssh/config"
+# Generate SSH config by combining platform-specific config with shared hosts
+echo "🔑 Generating SSH config..."
+mkdir -p "$HOME/.ssh"
+
+# Remove existing symlink if present
+if [[ -L "$HOME/.ssh/config" ]]; then
+    rm "$HOME/.ssh/config"
 fi
+
+# Backup existing file if it's not a symlink
+backup_if_exists "$HOME/.ssh/config"
+
+# Determine which platform config to use
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    PLATFORM_CONFIG="$DOTFILES_DIR/.ssh/config.macos"
+else
+    PLATFORM_CONFIG="$DOTFILES_DIR/.ssh/config.linux"
+fi
+
+# Combine platform config + shared hosts
+cat "$PLATFORM_CONFIG" > "$HOME/.ssh/config"
+echo "" >> "$HOME/.ssh/config"
+cat "$DOTFILES_DIR/.ssh/hosts" >> "$HOME/.ssh/config"
+
+chmod 600 "$HOME/.ssh/config"
+echo -e "${GREEN}✓${NC} Generated SSH config for $OSTYPE"
 
 # Link other configs as they're added
 # link .tmux.conf
