@@ -28,3 +28,6 @@
 
 [user]
 	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIzlrKAQzna6inWC0rg3wCXgL0i0MzYHLxzt+s2Zf+wW
+[gpg "ssh"]
+	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+	allowedSignersFile = /Users/Clayton.Duarte/.ssh/allowed_signers

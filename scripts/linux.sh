@@ -18,40 +18,44 @@ fi
 
 case $DISTRO in
     ubuntu|debian)
-        echo "📦 Installing packages (Debian/Ubuntu)..."
+        echo "📦 Installing essential packages (Ubuntu/Debian)..."
         sudo apt update
         sudo apt install -y \
             git \
             fish \
             curl \
-            wget \
-            build-essential \
+            jq \
             gh
         ;;
-    fedora)
-        echo "📦 Installing packages (Fedora)..."
+    fedora|bazzite*)
+        echo "📦 Installing essential packages (Fedora/Bazzite)..."
+        # Bazzite is immutable, packages should be layered
+        sudo rpm-ostree install -y \
+            git \
+            fish \
+            curl \
+            jq \
+            gh || \
         sudo dnf install -y \
             git \
             fish \
             curl \
-            wget \
-            gcc \
-            make \
+            jq \
             gh
         ;;
-    arch)
-        echo "📦 Installing packages (Arch)..."
+    arch|steamos*|holo*)
+        echo "📦 Installing essential packages (Arch/SteamOS)..."
+        # SteamOS is immutable, might need pacman or flatpak
         sudo pacman -S --noconfirm \
             git \
             fish \
             curl \
-            wget \
-            base-devel \
+            jq \
             github-cli
         ;;
     *)
         echo "⚠️  Unsupported distribution: $DISTRO"
-        echo "Please install git, fish, and gh manually"
+        echo "Please install git, fish, gh, curl, and jq manually"
         ;;
 esac
 

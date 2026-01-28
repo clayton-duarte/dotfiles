@@ -19,28 +19,13 @@ fi
 # Install tools via Brewfile
 echo "📦 Installing packages from Brewfile..."
 
-brew bundle --no-lock --file=- <<EOF
+brew bundle --file=- <<EOF
 # Core tools
 brew "git"
-brew "gh"
-brew "fish"
-
-# Node version manager
-brew "n"
-
-# Modern CLI tools
-brew "fzf"
-brew "ripgrep"
-brew "fd"
-brew "bat"
-brew "exa"
-brew "starship"
-
-# Development tools (optional, uncomment as needed)
-# brew "neovim"
-# brew "tmux"
-# cask "docker"
-# cask "visual-studio-code"
+brew "gh"          # GitHub CLI (for pr command)
+brew "fish"        # Fish shell
+brew "n"           # Node version manager
+brew "jq"          # JSON parser (for secrets script)
 EOF
 
 echo "✅ macOS setup complete"

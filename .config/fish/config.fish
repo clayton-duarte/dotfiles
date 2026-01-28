@@ -9,76 +9,13 @@
 # =============================================================================
 
 function secrets-refresh --description "Fetch secrets from 1Password"
-    if not command -v op &> /dev/null
-        echo "❌ 1Password CLI not installed"
-        return 1
+    # Call the bash script instead of duplicating logic
+    ~/dotfiles/scripts/secrets.sh
+
+    # Source the secrets file to make them available immediately
+    if test -f ~/.config/fish/secrets.fish
+        source ~/.config/fish/secrets.fish
     end
-
-    set SECRETS_FILE "$HOME/.config/fish/secrets.fish"
-
-    echo "🔐 Fetching secrets from 1Password..."
-
-    # Create secrets file header
-    echo "# =============================================================================" > $SECRETS_FILE
-    echo "# Auto-generated secrets from 1Password" >> $SECRETS_FILE
-    echo "# =============================================================================" >> $SECRETS_FILE
-    echo "# DO NOT COMMIT THIS FILE TO GIT" >> $SECRETS_FILE
-    echo "# Generated: "(date) >> $SECRETS_FILE
-    echo "" >> $SECRETS_FILE
-
-    echo "📥 Fetching API tokens from Private vault..."
-
-    # Dynamically fetch ALL fields from "Development API Tokens" item
-    set ITEM_JSON (op item get "Development API Tokens" --account=my.1password.com --format=json 2>/dev/null)
-
-    if test $status -eq 0
-        # Extract all fields and export them
-        echo $ITEM_JSON | jq -r '.fields[] | select(.value != null and .value != "") | "export \(.label)=\"\(.value)\""' >> $SECRETS_FILE
-
-        # Count and report
-        set TOKEN_COUNT (echo $ITEM_JSON | jq -r '.fields[] | select(.value != null and .value != "") | .label' | wc -l | tr -d ' ')
-        echo "  ✓ Loaded $TOKEN_COUNT tokens:"
-        echo $ITEM_JSON | jq -r '.fields[] | select(.value != null and .value != "") | "    - \(.label)"'
-    else
-        echo "  ⚠️  Could not fetch Development API Tokens from 1Password"
-        echo "  Make sure you're authenticated: eval \$(op signin)"
-        return 1
-    end
-
-    # Set permissions
-    chmod 600 $SECRETS_FILE
-
-    echo ""
-    echo "🔑 Fetching SSH keys..."
-
-    # Create .ssh directory if needed
-    mkdir -p "$HOME/.ssh"
-    chmod 700 "$HOME/.ssh"
-
-    # GitHub SSH Key
-    if op read "op://Private/GH SSH Key/private key" --account=my.1password.com &> /dev/null
-        op read "op://Private/GH SSH Key/private key" --account=my.1password.com > "$HOME/.ssh/id_ed25519"
-        chmod 600 "$HOME/.ssh/id_ed25519"
-        echo "  ✓ GitHub SSH private key"
-
-        if op read "op://Private/GH SSH Key/public key" --account=my.1password.com &> /dev/null
-            op read "op://Private/GH SSH Key/public key" --account=my.1password.com > "$HOME/.ssh/id_ed25519.pub"
-            chmod 644 "$HOME/.ssh/id_ed25519.pub"
-            echo "  ✓ GitHub SSH public key"
-        end
-    else
-        echo "  ⚠️  GitHub SSH key not found"
-    end
-
-    echo ""
-    echo "✅ Secrets and SSH keys loaded successfully"
-    echo ""
-    echo "📝 Loaded:"
-    echo "   - API tokens → ~/.config/fish/secrets.fish"
-    echo "   - SSH keys → ~/.ssh/id_ed25519"
-
-    # Re-source to make available immediately
-    source $SECRETS_FILE
 end
 
 # =============================================================================
@@ -418,69 +355,8 @@ end
 # =============================================================================
 
 function dotfiles-install --description "Install dotfiles (create symlinks)"
-    set DOTFILES_DIR "$HOME/dotfiles"
-
-    echo "🔗 Installing dotfiles..."
-
-    # Helper function to backup if exists
-    function backup_if_exists
-        if test -f $argv[1]; or test -d $argv[1]
-            if not test -L $argv[1]
-                set backup "$argv[1].backup."(date +%Y%m%d-%H%M%S)
-                echo "⚠️  Backing up existing $argv[1] to $backup"
-                mv $argv[1] $backup
-            else
-                rm $argv[1]
-            end
-        end
-    end
-
-    # Helper function to create symlink
-    function link
-        set src "$DOTFILES_DIR/$argv[1]"
-        set dest "$HOME/$argv[1]"
-        set dest_dir (dirname "$dest")
-
-        mkdir -p "$dest_dir"
-        backup_if_exists "$dest"
-        ln -sf "$src" "$dest"
-        echo "✓ Linked $argv[1]"
-    end
-
-    # Link fish config
-    link .config/fish/config.fish
-
-    # Link git config if it exists
-    if test -f "$DOTFILES_DIR/.gitconfig"
-        link .gitconfig
-    end
-
-    # Link SSH config if it exists
-    if test -f "$DOTFILES_DIR/.ssh/config"
-        link .ssh/config
-        chmod 600 "$HOME/.ssh/config"
-    end
-
-    # Set fish as default shell if not already
-    if not string match -q "*fish*" $SHELL
-        echo ""
-        echo "🐚 Setting fish as default shell..."
-        if not grep -q (which fish) /etc/shells
-            echo (which fish) | sudo tee -a /etc/shells
-        end
-        chsh -s (which fish)
-        echo "✓ Fish set as default shell"
-    else
-        echo "✓ Fish is already default shell"
-    end
-
-    echo ""
-    echo "✅ Dotfiles installed successfully!"
-    echo ""
-    echo "Next steps:"
-    echo "  1. Restart your terminal (or run: exec fish)"
-    echo "  2. Config will auto-sync on startup"
-    echo "  3. Use 'config edit' to edit dotfiles"
+    # Call the bash script instead of duplicating logic
+    ~/dotfiles/scripts/install.sh
 end
 
 # =============================================================================
