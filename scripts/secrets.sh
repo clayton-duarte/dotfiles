@@ -67,7 +67,10 @@ chmod 700 "$HOME/.ssh"
 if op read "op://Private/GH SSH Key/private key" --account=my.1password.com &> /dev/null; then
     op read "op://Private/GH SSH Key/private key" --account=my.1password.com > "$HOME/.ssh/id_ed25519"
     chmod 600 "$HOME/.ssh/id_ed25519"
-    echo "  ✓ GitHub SSH private key"
+
+    # Convert from PKCS#8 (1Password format) to OpenSSH format
+    ssh-keygen -p -f "$HOME/.ssh/id_ed25519" -m openssh -P "" -N "" &> /dev/null
+    echo "  ✓ GitHub SSH private key (converted to OpenSSH format)"
 
     # Also get the public key if available
     if op read "op://Private/GH SSH Key/public key" --account=my.1password.com &> /dev/null; then
