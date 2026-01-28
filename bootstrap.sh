@@ -147,12 +147,19 @@ echo ""
 echo "🔐 Setting up Google Cloud authentication..."
 if command -v gcloud &> /dev/null; then
     if ! gcloud auth list --filter=status:ACTIVE --format="value(account)" 2>/dev/null | grep -q .; then
-        echo "  Please authenticate with Google Cloud for Claude Code (Vertex AI):"
-        echo "  The following command will give you a URL to open in your browser"
+        echo "  Google Cloud authentication is needed for Claude Code (Vertex AI)"
+        echo "  This requires opening a URL in a browser."
         echo ""
-        gcloud auth login
-        gcloud config set project team-engineering-dev-wfuk
-        echo "✅ Google Cloud authenticated"
+        read -p "  Do you want to authenticate now? (y/n) " -n 1 -r
+        echo ""
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            echo "  The following command will give you a URL to open in your browser"
+            gcloud auth login
+            gcloud config set project team-engineering-dev-wfuk
+            echo "✅ Google Cloud authenticated"
+        else
+            echo "⏭️  Skipping Google Cloud auth (run 'gcloud auth login' later)"
+        fi
     else
         echo "✅ Google Cloud already authenticated"
         # Ensure project is set
