@@ -41,8 +41,9 @@ function __dotfiles_sync --on-event fish_prompt --description "Auto-sync dotfile
         return
     end
 
+    # Show simple loader
     set_color $fish_color_autosuggestion
-    echo -n "Checking dotfiles sync... "
+    echo -n "⟳ "
     set_color normal
 
     # Save current directory
@@ -50,19 +51,20 @@ function __dotfiles_sync --on-event fish_prompt --description "Auto-sync dotfile
     cd ~/dotfiles 2>/dev/null || return
 
     # Fetch quietly
-    git fetch --quiet 2>/dev/null || begin
+    if not git fetch --quiet 2>/dev/null
         cd $prev_dir
-        echo "⚠️  Failed to fetch from remote"
+        echo -e "\r\033[K⚠️  Dotfiles: Failed to fetch from remote"
         return
     end
 
     # Check for uncommitted changes (staged or unstaged) and commit them
     if not git diff-index --quiet --cached HEAD -- 2>/dev/null; or not git diff-index --quiet HEAD -- 2>/dev/null
-        set_color yellow
-        echo "📝 Committing changes..."
-        set_color normal
         git add .
-        git commit -m "Auto-sync from $(hostname) at $(date +%Y-%m-%d\ %H:%M:%S)" --quiet 2>/dev/null
+        if not git commit -m "Auto-sync from $(hostname) at $(date +%Y-%m-%d\ %H:%M:%S)" --quiet 2>/dev/null
+            cd $prev_dir
+            echo -e "\r\033[K⚠️  Dotfiles: Failed to commit changes"
+            return
+        end
     end
 
     # Check git status
@@ -71,33 +73,27 @@ function __dotfiles_sync --on-event fish_prompt --description "Auto-sync dotfile
     set base_commit (git merge-base @ @{u} 2>/dev/null)
 
     if test "$local_commit" = "$remote_commit"
-        # Up to date
-        set_color green
-        echo "✓"
-        set_color normal
+        # Up to date - clear the loader
+        echo -e "\r\033[K"
     else if test "$local_commit" = "$base_commit"
         # Need to pull
-        set_color yellow
-        echo "⬇ Pulling updates..."
-        set_color normal
-        git pull --quiet --rebase
-        set_color green
-        echo "✓ Updated"
-        set_color normal
+        if not git pull --quiet --rebase 2>/dev/null
+            cd $prev_dir
+            echo -e "\r\033[K⚠️  Dotfiles: Failed to pull updates"
+            return
+        end
+        echo -e "\r\033[K"
     else if test "$remote_commit" = "$base_commit"
         # Need to push
-        set_color yellow
-        echo "⬆ Pushing changes..."
-        set_color normal
-        git push --quiet
-        set_color green
-        echo "✓ Pushed"
-        set_color normal
+        if not git push --quiet 2>/dev/null
+            cd $prev_dir
+            echo -e "\r\033[K⚠️  Dotfiles: Failed to push changes"
+            return
+        end
+        echo -e "\r\033[K"
     else
         # Diverged
-        set_color red
-        echo "⚠️  Diverged! Run 'cd ~/dotfiles && git status'"
-        set_color normal
+        echo -e "\r\033[K⚠️  Dotfiles diverged! Run 'cd ~/dotfiles && git status'"
     end
 
     cd $prev_dir
