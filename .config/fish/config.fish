@@ -83,6 +83,15 @@ function __dotfiles_sync --on-event fish_prompt --description "Auto-sync dotfile
         return
     end
 
+    # Check for uncommitted changes and commit them
+    if not git diff-index --quiet HEAD -- 2>/dev/null
+        set_color yellow
+        echo "📝 Committing changes..."
+        set_color normal
+        git add .
+        git commit -m "Auto-sync from $(hostname) at $(date +%Y-%m-%d\ %H:%M:%S)" --quiet 2>/dev/null
+    end
+
     # Check git status
     set local_commit (git rev-parse @ 2>/dev/null)
     set remote_commit (git rev-parse @{u} 2>/dev/null)
@@ -107,8 +116,6 @@ function __dotfiles_sync --on-event fish_prompt --description "Auto-sync dotfile
         set_color yellow
         echo "⬆ Pushing changes..."
         set_color normal
-        git add .
-        git commit -m "Auto-sync from $(hostname) at $(date +%Y-%m-%d-%H-%M-%S)" --quiet 2>/dev/null
         git push --quiet
         set_color green
         echo "✓ Pushed"
