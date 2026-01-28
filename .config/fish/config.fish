@@ -19,38 +19,11 @@ function secrets-refresh --description "Fetch secrets from 1Password"
 end
 
 # =============================================================================
-# Auto-fetch secrets from 1Password on startup
+# Load secrets from file (refresh with 'config secrets')
 # =============================================================================
-function __fetch_secrets --on-event fish_prompt --description "Auto-fetch secrets from 1Password"
-    # Only run once per session
-    if set -q __secrets_fetched
-        return
-    end
-    set -g __secrets_fetched 1
-
-    # Check if 1Password CLI is available
-    if not command -v op &> /dev/null
-        return
-    end
-
-    set_color $fish_color_autosuggestion
-    echo -n "Loading secrets... "
-    set_color normal
-
-    # Run secrets-refresh function silently
-    if secrets-refresh > /dev/null 2>&1
-        set_color green
-        echo "✓"
-        set_color normal
-    else
-        set_color yellow
-        echo "⚠️  (using cached)"
-        set_color normal
-        # Load cached secrets if available
-        if test -f ~/.config/fish/secrets.fish
-            source ~/.config/fish/secrets.fish
-        end
-    end
+# Load existing secrets file if available
+if test -f ~/.config/fish/secrets.fish
+    source ~/.config/fish/secrets.fish
 end
 
 # =============================================================================
