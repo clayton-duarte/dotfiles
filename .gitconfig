@@ -26,6 +26,6 @@
 	gpgsign = true
 
 [user]
-	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJfW9sXv6Shm1s9sMDZtUN51InfP4oclRwZnrIKKeRdb cpd@duck.com
+	signingkey = ~/.ssh/id_ed25519
 [gpg "ssh"]
-	allowedSignersFile = ~/.ssh/allowed_signers
+	allowedSignersFile = /Users/Clayton.Duarte/.ssh/allowed_signers

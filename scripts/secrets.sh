@@ -15,10 +15,10 @@ if ! command -v op &> /dev/null; then
     exit 1
 fi
 
-# Check if authenticated
-if ! op account list &> /dev/null; then
-    echo "🔑 Please authenticate with 1Password..."
-    eval $(op signin)
+# Check if authenticated (op whoami fails if session expired)
+if ! op whoami &> /dev/null; then
+    echo "🔑 Please sign in to 1Password..."
+    eval $(op signin --account my.1password.com)
 fi
 
 # Create secrets.fish file

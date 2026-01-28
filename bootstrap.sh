@@ -55,8 +55,9 @@ echo ""
 
 # 2. Authenticate with 1Password
 echo "🔐 Authenticating with 1Password..."
-if ! op account list &> /dev/null; then
-    eval $(op signin)
+if ! op whoami &> /dev/null; then
+    echo "🔑 Please sign in to 1Password..."
+    eval $(op signin --account my.1password.com)
 else
     echo "✅ Already authenticated with 1Password"
 fi
