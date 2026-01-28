@@ -118,20 +118,17 @@ git config --global pull.rebase true
 git config --global merge.ff false
 git config --global rebase.autoStash true
 
-# Git SSH signing (macOS only for now)
-if [[ "$OS" == "macos" ]]; then
-    git config --global gpg.format ssh
-    git config --global gpg.ssh.program "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
-    git config --global commit.gpgsign true
-    git config --global user.signingkey "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIzlrKAQzna6inWC0rg3wCXgL0i0MzYHLxzt+s2Zf+wW"
+# Git SSH signing (works on both macOS and Linux)
+git config --global gpg.format ssh
+git config --global commit.gpgsign true
+git config --global user.signingkey "$HOME/.ssh/id_ed25519"
 
-    # Create allowed_signers file for commit verification
-    mkdir -p "$HOME/.ssh"
-    echo "cpd@duck.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIzlrKAQzna6inWC0rg3wCXgL0i0MzYHLxzt+s2Zf+wW" > "$HOME/.ssh/allowed_signers"
-    git config --global gpg.ssh.allowedSignersFile "$HOME/.ssh/allowed_signers"
+# Create allowed_signers file for commit verification
+mkdir -p "$HOME/.ssh"
+echo "cpd@duck.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIzlrKAQzna6inWC0rg3wCXgL0i0MzYHLxzt+s2Zf+wW" > "$HOME/.ssh/allowed_signers"
+git config --global gpg.ssh.allowedSignersFile "$HOME/.ssh/allowed_signers"
 
-    echo "  ✓ Git SSH signing configured"
-fi
+echo "  ✓ Git SSH signing configured"
 
 echo "✅ Git configured"
 echo ""
