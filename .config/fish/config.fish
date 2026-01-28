@@ -56,8 +56,8 @@ function __dotfiles_sync --on-event fish_prompt --description "Auto-sync dotfile
         return
     end
 
-    # Check for uncommitted changes and commit them
-    if not git diff-index --quiet HEAD -- 2>/dev/null
+    # Check for uncommitted changes (staged or unstaged) and commit them
+    if not git diff-index --quiet --cached HEAD -- 2>/dev/null; or not git diff-index --quiet HEAD -- 2>/dev/null
         set_color yellow
         echo "📝 Committing changes..."
         set_color normal

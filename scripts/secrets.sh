@@ -18,7 +18,15 @@ fi
 # Check if authenticated (op whoami fails if session expired)
 if ! op whoami &> /dev/null; then
     echo "🔑 Please sign in to 1Password..."
-    eval $(op signin --account my.1password.com)
+    eval $(op signin --account my.1password.com) || {
+        echo "❌ Failed to authenticate with 1Password"
+        exit 1
+    }
+    # Verify authentication succeeded
+    if ! op whoami &> /dev/null; then
+        echo "❌ Authentication failed"
+        exit 1
+    fi
 fi
 
 # Create secrets.fish file

@@ -57,7 +57,17 @@ echo ""
 echo "🔐 Authenticating with 1Password..."
 if ! op whoami &> /dev/null; then
     echo "🔑 Please sign in to 1Password..."
-    eval $(op signin --account my.1password.com)
+    eval $(op signin --account my.1password.com) || {
+        echo "❌ Failed to authenticate with 1Password"
+        echo "Please check your credentials and try again"
+        exit 1
+    }
+    # Verify authentication succeeded
+    if ! op whoami &> /dev/null; then
+        echo "❌ Authentication failed"
+        exit 1
+    fi
+    echo "✅ Authenticated with 1Password"
 else
     echo "✅ Already authenticated with 1Password"
 fi
@@ -73,8 +83,8 @@ echo ""
 
 # 4. Pull secrets from 1Password
 echo "🔑 Fetching secrets from 1Password..."
-chmod +x ./scripts/secrets.sh
-./scripts/secrets.sh
+# Source instead of execute to preserve 1Password session
+source ./scripts/secrets.sh
 
 echo ""
 
