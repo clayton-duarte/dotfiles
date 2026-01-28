@@ -8,9 +8,7 @@ Personal development environment configuration synced across machines.
 - **Auto-sync** on terminal startup - automatically pulls/pushes config changes
 - **1Password integration** for secrets management (no hardcoded tokens)
 - **Cross-platform** - works on macOS and Linux
-- **Claude Code** configuration synced across machines
 - **GitHub CLI** auto-authentication via 1Password
-- **Google Cloud SDK** for Claude Code (Vertex AI)
 - **SSH management** with automated key deployment
 - **Git commit signing** via SSH keys
 - **One-line bootstrap** for fresh machines
@@ -33,14 +31,12 @@ cd ~/dotfiles
 This will:
 1. Install 1Password CLI
 2. Authenticate with 1Password
-3. Install essential tools (fish, git, gh, gcloud, node, etc.)
+3. Install essential tools (fish, git, gh, node, etc.)
 4. Pull secrets from 1Password vault
 5. Authenticate GitHub CLI
-6. Set up Google Cloud authentication (optional, for Claude Code)
-7. Clone Claude Code configuration
-8. Symlink all dotfiles
-9. Configure git with SSH signing
-10. Set fish as default shell
+6. Symlink all dotfiles
+7. Configure git with SSH signing
+8. Set fish as default shell
 
 **That's it!** After `bootstrap.sh`, all maintenance is done via fish functions.
 
@@ -76,9 +72,6 @@ dotfiles-install     # Create/recreate symlinks
 
 ## Repository Structure
 
-This setup uses **two separate repos**:
-
-### 1. Dotfiles (this repo)
 ```
 dotfiles/
 ├── bootstrap.sh                # ⭐ Single setup script (run once)
@@ -95,17 +88,6 @@ dotfiles/
 │   ├── macos.sh                # macOS package installation (Homebrew)
 │   └── linux.sh                # Linux package installation (apt/dnf/pacman)
 └── README.md                   # This file
-```
-
-### 2. Claude Code Config (separate repo)
-Automatically cloned to `~/.claude/` during bootstrap:
-```
-~/.claude/
-├── settings.json               # Model, plugins, hooks, permissions
-├── preferences.md              # Jira templates, coding standards
-├── shared-copilot-instructions.md  # PR guidelines, commit rules
-├── README.md                   # Setup instructions
-└── .gitignore                  # Excludes cache/state files
 ```
 
 **Clean root:**
@@ -203,46 +185,6 @@ config status   # Show git status
 3. Or manually sync with `config sync`
 4. Other machines auto-pull on terminal open
 
-## Claude Code Integration
-
-### Setup
-
-Claude Code configuration is stored in a separate repo: [`dotfiles-claude`](https://github.com/clayton-duarte/dotfiles-claude)
-
-Bootstrap automatically:
-- Installs Google Cloud SDK
-- Authenticates with Google Cloud (Vertex AI)
-- Clones Claude Code config to `~/.claude/`
-
-### Configuration Files
-
-Synced via git in `~/.claude/`:
-- `settings.json` - Model, plugins, hooks, permissions
-- `preferences.md` - Jira templates, coding standards
-- `shared-copilot-instructions.md` - PR guidelines, commit rules
-
-### Headless Servers
-
-**With SSH access (from Mac/GUI machine):**
-1. Run `./bootstrap.sh`
-2. When prompted for gcloud auth, choose "Yes"
-3. Open the provided URL in your local browser
-4. Paste the code back into the SSH session
-5. Done! ✅
-
-**Without SSH access (console/KVM):**
-1. Run `./bootstrap.sh`
-2. When prompted for gcloud auth, choose "No"
-3. Everything else works (dotfiles, Fish, etc.)
-4. Run `gcloud auth login` later when you have SSH access
-
-### Plugin Authentication
-
-Claude Code plugins (GitHub, Atlassian, Figma, Sentry, Slack) use automatic OAuth:
-- First use → browser opens for authorization
-- Credentials stored by Claude Code
-- No manual configuration needed
-
 ## Git Workflow Functions
 
 ### Branch Management
@@ -318,7 +260,6 @@ ssh test    # Test GitHub SSH connection
 - ✅ `secrets.fish` is auto-generated and gitignored
 - ✅ SSH keys are fetched from 1Password, never committed
 - ✅ GitHub CLI token in 1Password, never in environment (unless needed)
-- ✅ Google Cloud credentials stored by gcloud, never committed
 - ✅ `.gitignore` prevents accidental secret commits
 
 **Never commit:**
@@ -327,20 +268,17 @@ ssh test    # Test GitHub SSH connection
 - SSH private keys
 - API tokens / PATs
 - Passwords
-- `~/.config/gh/` or `~/.config/gcloud/` directories
+- `~/.config/gh/` directory
 
 **What's synced:**
 - ✅ Configuration files (Fish, git, SSH config)
 - ✅ Scripts and functions
-- ✅ Claude Code settings (model, plugins, preferences)
 
 **What's NOT synced:**
 - ❌ Secrets, credentials, tokens
 - ❌ SSH keys
 - ❌ Authentication state
 - ❌ Cache files
-- ❌ Claude Code plugin installations
-- ❌ Claude Code project-specific state
 
 ## Customization
 
@@ -424,31 +362,6 @@ gh auth status
 config secrets  # Refreshes token from 1Password
 ```
 
-### Google Cloud not authenticated
-
-```fish
-# Check active account
-gcloud auth list
-
-# Re-authenticate
-gcloud auth login
-gcloud config set project team-engineering-dev-wfuk
-```
-
-### Claude Code not working
-
-```fish
-# Check if config exists
-ls -la ~/.claude/
-
-# Re-clone config
-rm -rf ~/.claude
-git clone git@github.com:clayton-duarte/dotfiles-claude.git ~/.claude
-
-# Check Google Cloud auth (required for Vertex AI)
-gcloud auth list
-```
-
 ## Requirements
 
 ### Prerequisites (install manually)
@@ -459,7 +372,6 @@ gcloud auth list
 - 1Password CLI (`op`)
 - Fish shell
 - GitHub CLI (`gh`)
-- Google Cloud SDK (`gcloud`) - For Claude Code
 - Node.js (via `n` version manager)
 - jq (JSON parsing)
 - neofetch (system info)

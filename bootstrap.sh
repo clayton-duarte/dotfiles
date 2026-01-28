@@ -143,53 +143,7 @@ echo "  ✓ Git SSH signing configured"
 echo "✅ Git configured"
 echo ""
 
-# 8. Authenticate with Google Cloud (for Claude Code)
-echo "🔐 Setting up Google Cloud authentication..."
-if command -v gcloud &> /dev/null; then
-    if ! gcloud auth list --filter=status:ACTIVE --format="value(account)" 2>/dev/null | grep -q .; then
-        echo "  Google Cloud authentication is needed for Claude Code (Vertex AI)"
-        echo "  This requires opening a URL in a browser."
-        echo ""
-        read -p "  Do you want to authenticate now? (y/n) " -n 1 -r
-        echo ""
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            echo "  The following command will give you a URL to open in your browser"
-            gcloud auth login
-            gcloud config set project team-engineering-dev-wfuk
-            echo "✅ Google Cloud authenticated"
-        else
-            echo "⏭️  Skipping Google Cloud auth (run 'gcloud auth login' later)"
-        fi
-    else
-        echo "✅ Google Cloud already authenticated"
-        # Ensure project is set
-        gcloud config set project team-engineering-dev-wfuk
-    fi
-else
-    echo "⚠️  Google Cloud SDK not installed (skipping)"
-fi
-
-echo ""
-
-# 9. Clone Claude Code configuration
-echo "📦 Setting up Claude Code configuration..."
-if [[ ! -d "$HOME/.claude/.git" ]]; then
-    if [[ -d "$HOME/.claude" ]]; then
-        echo "  ⚠️  ~/.claude exists but is not a git repo"
-        echo "  Please back it up and run bootstrap again"
-    else
-        echo "  Cloning Claude Code configuration..."
-        git clone git@github.com:clayton-duarte/dotfiles-claude.git "$HOME/.claude" 2>/dev/null && \
-        echo "✅ Claude Code configuration cloned" || \
-        echo "⚠️  Failed to clone Claude Code config (repo may not exist yet)"
-    fi
-else
-    echo "✅ Claude Code configuration already set up"
-fi
-
-echo ""
-
-# 10. Initialize git repo for dotfiles (if not already initialized)
+# 8. Initialize git repo for dotfiles (if not already initialized)
 if [[ ! -d .git ]]; then
     echo "📦 Initializing git repository..."
     git init
@@ -211,7 +165,4 @@ echo "  1. Restart your terminal (exec fish)"
 echo "  2. Your config will auto-sync on terminal startup"
 echo "  3. Use 'config edit' to edit configs"
 echo "  4. SSH config is ready with all hosts configured"
-echo "  5. Claude Code is configured with your global settings"
-echo "     - Plugins will auto-install on first use"
-echo "     - OAuth authentication happens automatically for MCP plugins"
 echo ""
