@@ -131,12 +131,12 @@ git config --global rebase.autoStash true
 # Git SSH signing (works on both macOS and Linux)
 git config --global gpg.format ssh
 git config --global commit.gpgsign true
-git config --global user.signingkey "$HOME/.ssh/id_ed25519"
+git config --global user.signingkey "~/.ssh/id_ed25519"
 
 # Create allowed_signers file for commit verification
 mkdir -p "$HOME/.ssh"
 echo "cpd@duck.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIzlrKAQzna6inWC0rg3wCXgL0i0MzYHLxzt+s2Zf+wW" > "$HOME/.ssh/allowed_signers"
-git config --global gpg.ssh.allowedSignersFile "$HOME/.ssh/allowed_signers"
+git config --global gpg.ssh.allowedSignersFile "~/.ssh/allowed_signers"
 
 echo "  ✓ Git SSH signing configured"
 

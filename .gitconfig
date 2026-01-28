@@ -26,6 +26,6 @@
 	gpgsign = true
 
 [user]
-	signingkey = /home/clayton/.ssh/id_ed25519
+	signingkey = ~/.ssh/id_ed25519
 [gpg "ssh"]
-	allowedSignersFile = /home/clayton/.ssh/allowed_signers
+	allowedSignersFile = ~/.ssh/allowed_signers
