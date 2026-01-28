@@ -57,8 +57,31 @@ fi
 chmod 600 "$SECRETS_FILE"
 
 echo ""
+echo "🔑 Fetching SSH keys..."
+
+# Create .ssh directory if it doesn't exist
+mkdir -p "$HOME/.ssh"
+chmod 700 "$HOME/.ssh"
+
+# GitHub SSH Key
+if op read "op://Private/GH SSH Key/private key" --account=my.1password.com &> /dev/null; then
+    op read "op://Private/GH SSH Key/private key" --account=my.1password.com > "$HOME/.ssh/id_ed25519"
+    chmod 600 "$HOME/.ssh/id_ed25519"
+    echo "  ✓ GitHub SSH private key"
+
+    # Also get the public key if available
+    if op read "op://Private/GH SSH Key/public key" --account=my.1password.com &> /dev/null; then
+        op read "op://Private/GH SSH Key/public key" --account=my.1password.com > "$HOME/.ssh/id_ed25519.pub"
+        chmod 644 "$HOME/.ssh/id_ed25519.pub"
+        echo "  ✓ GitHub SSH public key"
+    fi
+else
+    echo "  ⚠️  GitHub SSH key not found"
+fi
+
+echo ""
 echo "✅ Secrets loaded successfully"
 echo ""
 echo "📝 Loaded:"
 echo "   - API tokens → ~/.config/fish/secrets.fish"
-echo "   - SSH keys → managed by 1Password SSH agent"
+echo "   - SSH keys → ~/.ssh/id_ed25519"
