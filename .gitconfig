@@ -21,13 +21,11 @@
 # SSH commit signing
 [gpg]
 	format = ssh
-	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
 
 [commit]
 	gpgsign = true
 
 [user]
-	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIzlrKAQzna6inWC0rg3wCXgL0i0MzYHLxzt+s2Zf+wW
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJfW9sXv6Shm1s9sMDZtUN51InfP4oclRwZnrIKKeRdb cpd@duck.com
 [gpg "ssh"]
-	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
-	allowedSignersFile = /Users/Clayton.Duarte/.ssh/allowed_signers
+	allowedSignersFile = ~/.ssh/allowed_signers

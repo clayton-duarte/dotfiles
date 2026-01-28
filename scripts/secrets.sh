@@ -74,6 +74,15 @@ if op read "op://Private/GH SSH Key/private key" --account=my.1password.com &> /
         op read "op://Private/GH SSH Key/public key" --account=my.1password.com > "$HOME/.ssh/id_ed25519.pub"
         chmod 644 "$HOME/.ssh/id_ed25519.pub"
         echo "  ✓ GitHub SSH public key"
+
+        # Add public key to authorized_keys for SSH access from other machines
+        if ! grep -q "$(cat $HOME/.ssh/id_ed25519.pub)" "$HOME/.ssh/authorized_keys" 2>/dev/null; then
+            cat "$HOME/.ssh/id_ed25519.pub" >> "$HOME/.ssh/authorized_keys"
+            chmod 600 "$HOME/.ssh/authorized_keys"
+            echo "  ✓ Added public key to authorized_keys"
+        else
+            echo "  ✓ Public key already in authorized_keys"
+        fi
     fi
 else
     echo "  ⚠️  GitHub SSH key not found"
