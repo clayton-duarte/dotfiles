@@ -148,6 +148,7 @@ export BASE_BRANCH=main
 fish_add_path /usr/local/bin
 fish_add_path $ANDROID_HOME/emulator
 fish_add_path $ANDROID_HOME/platform-tools
+fish_add_path $ANDROID_HOME/cmdline-tools/latest/bin
 fish_add_path $ANDROID_HOME/tools/bin
 fish_add_path $ANDROID_HOME/tools
 fish_add_path $HOME/.maestro/bin
@@ -158,8 +159,16 @@ fish_add_path $HOME/.maestro/bin
 switch (uname)
     case Linux
         set -g ONE_PASS_AGENT_PATH "~/.1password/agent.sock"
+        # Set JAVA_HOME for Linux (common paths)
+        if test -d /usr/lib/jvm/java-17-openjdk-amd64
+            set -gx JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64
+        else if test -d /usr/lib/jvm/default-java
+            set -gx JAVA_HOME /usr/lib/jvm/default-java
+        end
     case Darwin # macOS
         set -g ONE_PASS_AGENT_PATH '"~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"'
+        # Set JAVA_HOME to Android Studio's bundled JDK
+        set -gx JAVA_HOME "/Applications/Android Studio.app/Contents/jbr/Contents/Home"
         # Initialize Homebrew environment
         eval "$(/opt/homebrew/bin/brew shellenv)"
         # Add VS Code to PATH
