@@ -359,6 +359,10 @@ function kill-port --description "Kill process on specified port"
     command lsof -i tcp:$argv | awk 'NR!=1 {print $2}' | xargs kill
 end
 
+function killport --description "Kill process on specified port"
+    command sudo fuser -k $argv/tcp
+end
+
 function npm --description "Enhanced npm with deps shortcut"
     switch $argv[1]
         case deps check depcheck
