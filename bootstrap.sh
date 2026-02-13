@@ -123,6 +123,8 @@ echo "👤 Configuring git..."
 git config --global user.email "cpd@duck.com"
 git config --global user.name "cpd"
 git config --global push.autoSetupRemote true
+git config --global push.useForceIfIncludes true
+git config --global init.defaultBranch main
 git config --global core.editor "code --wait"
 git config --global pull.rebase true
 git config --global merge.ff false
