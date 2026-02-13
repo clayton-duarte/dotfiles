@@ -81,7 +81,7 @@ function __dotfiles_sync --on-event fish_prompt --description "Auto-sync dotfile
     set prev_dir (pwd)
     cd ~/dotfiles 2>/dev/null || return
 
-    # Fetch quietly with timeout (5 seconds, fail silently)
+    # Fetch quietly with timeout (5 seconds)
     set -l fetch_status 0
     if test -n "$timeout_cmd"
         $timeout_cmd 5s git fetch --quiet 2>/dev/null; or set fetch_status $status
@@ -91,7 +91,11 @@ function __dotfiles_sync --on-event fish_prompt --description "Auto-sync dotfile
     if test $fetch_status -ne 0
         kill $__spinner_pid 2>/dev/null
         cd $prev_dir
-        echo -e "\r\033[K"
+        if test $fetch_status -eq 124
+            echo -e "\r\033[K\033[90m⚠️  Dotfiles sync timed out\033[0m"
+        else
+            echo -e "\r\033[K\033[90m⚠️  Dotfiles: fetch failed\033[0m"
+        end
         return
     end
 
@@ -114,7 +118,7 @@ function __dotfiles_sync --on-event fish_prompt --description "Auto-sync dotfile
         kill $__spinner_pid 2>/dev/null
         echo -e "\r\033[K"
     else if test "$local_commit" = "$base_commit"
-        # Need to pull (with timeout, fail silently)
+        # Need to pull (with timeout)
         set -l pull_status 0
         if test -n "$timeout_cmd"
             $timeout_cmd 10s git pull --quiet --rebase 2>/dev/null; or set pull_status $status
@@ -122,13 +126,18 @@ function __dotfiles_sync --on-event fish_prompt --description "Auto-sync dotfile
             git pull --quiet --rebase 2>/dev/null; or set pull_status $status
         end
         kill $__spinner_pid 2>/dev/null
-        echo -e "\r\033[K"
         if test $pull_status -ne 0
+            if test $pull_status -eq 124
+                echo -e "\r\033[K\033[90m⚠️  Dotfiles pull timed out\033[0m"
+            else
+                echo -e "\r\033[K\033[90m⚠️  Dotfiles: pull failed\033[0m"
+            end
             cd $prev_dir
             return
         end
+        echo -e "\r\033[K"
     else if test "$remote_commit" = "$base_commit"
-        # Need to push (with timeout, fail silently)
+        # Need to push (with timeout)
         set -l push_status 0
         if test -n "$timeout_cmd"
             $timeout_cmd 10s git push --quiet 2>/dev/null; or set push_status $status
@@ -136,15 +145,20 @@ function __dotfiles_sync --on-event fish_prompt --description "Auto-sync dotfile
             git push --quiet 2>/dev/null; or set push_status $status
         end
         kill $__spinner_pid 2>/dev/null
-        echo -e "\r\033[K"
         if test $push_status -ne 0
+            if test $push_status -eq 124
+                echo -e "\r\033[K\033[90m⚠️  Dotfiles push timed out\033[0m"
+            else
+                echo -e "\r\033[K\033[90m⚠️  Dotfiles: push failed\033[0m"
+            end
             cd $prev_dir
             return
         end
-    else
-        # Diverged - fail silently
-        kill $__spinner_pid 2>/dev/null
         echo -e "\r\033[K"
+    else
+        # Diverged
+        kill $__spinner_pid 2>/dev/null
+        echo -e "\r\033[K\033[90m⚠️  Dotfiles diverged\033[0m"
     end
 
     cd $prev_dir
