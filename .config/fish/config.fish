@@ -64,6 +64,14 @@ function __dotfiles_sync --on-event fish_prompt --description "Auto-sync dotfile
         return
     end
 
+    # Determine timeout command (gtimeout on macOS via coreutils, timeout on Linux)
+    set -l timeout_cmd ""
+    if command -v gtimeout &>/dev/null
+        set timeout_cmd gtimeout
+    else if command -v timeout &>/dev/null
+        set timeout_cmd timeout
+    end
+
     # Start animated spinner in background
     set -g __spinner_pid 0
     fish -c 'set frames "⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏"; while true; for frame in $frames; echo -ne "\r\033[K\033[90m$frame\033[0m "; sleep 0.08; end; end' &
@@ -73,11 +81,17 @@ function __dotfiles_sync --on-event fish_prompt --description "Auto-sync dotfile
     set prev_dir (pwd)
     cd ~/dotfiles 2>/dev/null || return
 
-    # Fetch quietly
-    if not git fetch --quiet 2>/dev/null
+    # Fetch quietly with timeout (5 seconds, fail silently)
+    set -l fetch_status 0
+    if test -n "$timeout_cmd"
+        $timeout_cmd 5s git fetch --quiet 2>/dev/null; or set fetch_status $status
+    else
+        git fetch --quiet 2>/dev/null; or set fetch_status $status
+    end
+    if test $fetch_status -ne 0
         kill $__spinner_pid 2>/dev/null
         cd $prev_dir
-        echo -e "\r\033[K⚠️  Dotfiles: Failed to fetch from remote"
+        echo -e "\r\033[K"
         return
     end
 
@@ -100,29 +114,37 @@ function __dotfiles_sync --on-event fish_prompt --description "Auto-sync dotfile
         kill $__spinner_pid 2>/dev/null
         echo -e "\r\033[K"
     else if test "$local_commit" = "$base_commit"
-        # Need to pull
-        if not git pull --quiet --rebase 2>/dev/null
-            kill $__spinner_pid 2>/dev/null
-            cd $prev_dir
-            echo -e "\r\033[K⚠️  Dotfiles: Failed to pull updates"
-            return
+        # Need to pull (with timeout, fail silently)
+        set -l pull_status 0
+        if test -n "$timeout_cmd"
+            $timeout_cmd 10s git pull --quiet --rebase 2>/dev/null; or set pull_status $status
+        else
+            git pull --quiet --rebase 2>/dev/null; or set pull_status $status
         end
         kill $__spinner_pid 2>/dev/null
         echo -e "\r\033[K"
+        if test $pull_status -ne 0
+            cd $prev_dir
+            return
+        end
     else if test "$remote_commit" = "$base_commit"
-        # Need to push
-        if not git push --quiet 2>/dev/null
-            kill $__spinner_pid 2>/dev/null
-            cd $prev_dir
-            echo -e "\r\033[K⚠️  Dotfiles: Failed to push changes"
-            return
+        # Need to push (with timeout, fail silently)
+        set -l push_status 0
+        if test -n "$timeout_cmd"
+            $timeout_cmd 10s git push --quiet 2>/dev/null; or set push_status $status
+        else
+            git push --quiet 2>/dev/null; or set push_status $status
         end
         kill $__spinner_pid 2>/dev/null
         echo -e "\r\033[K"
+        if test $push_status -ne 0
+            cd $prev_dir
+            return
+        end
     else
-        # Diverged
+        # Diverged - fail silently
         kill $__spinner_pid 2>/dev/null
-        echo -e "\r\033[K⚠️  Dotfiles diverged! Run 'cd ~/dotfiles && git status'"
+        echo -e "\r\033[K"
     end
 
     cd $prev_dir
