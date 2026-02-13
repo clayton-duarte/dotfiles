@@ -59,9 +59,9 @@ if [[ -f "$DOTFILES_DIR/.ssh/config" ]]; then
     chmod 600 "$HOME/.ssh/config"
 fi
 
-# Link cross-agent skills directory (works with Copilot, Claude, etc.)
-if [[ -d "$DOTFILES_DIR/.agents" ]]; then
-    link .agents
+# Link copilot skills directory
+if [[ -d "$DOTFILES_DIR/.copilot" ]]; then
+    link .copilot
 fi
 
 # Link other configs as they're added

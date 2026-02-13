@@ -1,6 +1,8 @@
 ---
 name: commit
 description: Generate conventional commit messages from staged changes. Analyzes git diff and creates standardized commit messages following the Conventional Commits specification.
+user-invokable: true
+argument-hint: "[optional: specific files or scope]"
 ---
 
 # Conventional Commit Skill
