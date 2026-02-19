@@ -64,9 +64,6 @@ config() {
 # Auto-sync dotfiles on startup
 # =============================================================================
 __dotfiles_sync() {
-    # Suppress background job notifications (restore on function exit)
-    setopt LOCAL_OPTIONS NO_MONITOR NO_NOTIFY
-
     # Only sync if dotfiles repo exists
     if [[ ! -d ~/dotfiles/.git ]]; then
         return
@@ -81,17 +78,25 @@ __dotfiles_sync() {
     fi
 
     # Start animated spinner in background
+    # Uses a co-process approach to avoid job control termination messages
     local spinner_pid=0
-    (
-        local frames=("⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏")
+    local spinner_pidfile=$(mktemp)
+    zsh -c '
+        echo $$ > "'"$spinner_pidfile"'"
+        trap "exit 0" TERM
+        frames=("⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏")
         while true; do
             for frame in "${frames[@]}"; do
                 echo -ne "\r\033[K\033[90m${frame}\033[0m "
                 sleep 0.08
             done
         done
-    ) &
-    spinner_pid=$!
+    ' &>/dev/tty &
+    disown
+    # Wait briefly for pidfile to be written
+    sleep 0.1
+    spinner_pid=$(<"$spinner_pidfile")
+    rm -f "$spinner_pidfile"
 
     # Save current directory
     local prev_dir="$PWD"
