@@ -66,6 +66,7 @@ Set in `.config/zsh/.zshenv` and exported as `SSH_AUTH_SOCK`.
 
 ### Architecture
 Modular config split across focused files:
+- `packages.json` — Single source of truth for all dependencies (parsed by `jq`)
 - `.zshenv` — Environment variables & PATH (loaded first)
 - `.zshrc` — Main entrypoint: plugins, prompt, options, module loading
 - `modules/git.zsh` — Git workflow functions

@@ -78,6 +78,7 @@ dotfiles-install     # Create/recreate symlinks
 ```
 dotfiles/
 ├── bootstrap.sh                # ⭐ Single setup script (run once)
+├── packages.json               # 📦 All dependencies in one place
 ├── .config/
 │   └── zsh/
 │       ├── .zshenv             # Environment variables & PATH
@@ -94,13 +95,32 @@ dotfiles/
 ├── scripts/                    # Helper scripts (used by bootstrap only)
 │   ├── install.sh              # Creates symlinks + installs Oh My Zsh + plugins
 │   ├── secrets.sh              # Fetches secrets & authenticates tools
-│   ├── macos.sh                # macOS package installation (Homebrew)
-│   └── linux.sh                # Linux package installation (apt/dnf/pacman)
+│   ├── macos.sh                # macOS packages (reads packages.json)
+│   └── linux.sh                # Linux packages (reads packages.json)
 └── README.md                   # This file
 ```
 
 **After bootstrap:**
 - Use zsh functions for all maintenance (no bash scripts needed)
+
+## Package Management
+
+All dependencies are declared in `packages.json` — one file, one source of truth.
+
+```json
+{
+  "package-name": {
+    "brew": "homebrew-formula",
+    "cask": "homebrew-cask",
+    "apt": "apt-package",
+    "dnf": "dnf-package",
+    "pacman": "pacman-package",
+    "install_cmd": "fallback shell command for platforms without a native package"
+  }
+}
+```
+
+**Adding a new package:** Add an entry to `packages.json` with the relevant package manager keys. The install scripts will pick it up automatically — no need to edit `macos.sh` or `linux.sh`.
 
 ## Auto-Sync Behavior
 

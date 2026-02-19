@@ -1,0 +1,76 @@
+{
+  "git": {
+    "brew": "git",
+    "apt": "git",
+    "dnf": "git",
+    "pacman": "git"
+  },
+  "gh": {
+    "brew": "gh",
+    "apt": "gh",
+    "dnf": "gh",
+    "pacman": "github-cli"
+  },
+  "zsh": {
+    "brew": "zsh",
+    "apt": "zsh",
+    "dnf": "zsh",
+    "pacman": "zsh"
+  },
+  "jq": {
+    "brew": "jq",
+    "apt": "jq",
+    "dnf": "jq",
+    "pacman": "jq"
+  },
+  "curl": {
+    "brew": "curl",
+    "apt": "curl",
+    "dnf": "curl",
+    "pacman": "curl"
+  },
+  "neofetch": {
+    "brew": "neofetch",
+    "apt": "neofetch",
+    "dnf": "neofetch",
+    "pacman": "neofetch"
+  },
+  "htop": {
+    "brew": "htop",
+    "apt": "htop",
+    "dnf": "htop",
+    "pacman": "htop"
+  },
+  "n": {
+    "brew": "n",
+    "install_cmd": "curl -L https://git.io/n-install | bash -s -- -y"
+  },
+  "colima": {
+    "brew": "colima"
+  },
+  "docker": {
+    "brew": "docker",
+    "apt": "docker.io",
+    "dnf": "docker-ce",
+    "pacman": "docker"
+  },
+  "docker-compose": {
+    "brew": "docker-compose",
+    "apt": "docker-compose",
+    "dnf": "docker-compose-plugin",
+    "pacman": "docker-compose"
+  },
+  "coreutils": {
+    "brew": "coreutils"
+  },
+  "1password-cli": {
+    "brew": "1password-cli",
+    "install_cmd": "curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg && echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main\" | sudo tee /etc/apt/sources.list.d/1password.list && sudo apt update && sudo apt install -y 1password-cli"
+  },
+  "fonts": {
+    "cask": "font-meslo-lg-nerd-font",
+    "apt": "fonts-powerline",
+    "dnf": "powerline-fonts",
+    "pacman": "powerline-fonts"
+  }
+}

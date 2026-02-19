@@ -7,6 +7,7 @@ Personal dotfiles for macOS/Linux with Zsh shell, 1Password secrets management, 
 ```
 dotfiles/
 ├── bootstrap.sh           # One-time setup entry point
+├── packages.json          # Single source of truth for all dependencies
 ├── .config/zsh/
 │   ├── .zshenv            # Environment variables & PATH (also symlinked to ~/.zshenv)
 │   ├── .zshrc             # Main Zsh config entrypoint (Oh My Zsh + agnoster)
@@ -20,8 +21,8 @@ dotfiles/
 └── scripts/
     ├── install.sh         # Symlink creation + Oh My Zsh install (idempotent)
     ├── secrets.sh         # 1Password secrets fetch
-    ├── macos.sh           # Homebrew packages
-    └── linux.sh           # apt/dnf/pacman packages
+    ├── macos.sh           # macOS packages (reads packages.json → Brewfile)
+    └── linux.sh           # Linux packages (reads packages.json → apt/dnf/pacman)
 ```
 
 Symlinks point from `$HOME/` to `~/dotfiles/`. Auto-generated files (`secrets.zsh`, SSH keys) are gitignored.
