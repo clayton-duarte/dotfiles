@@ -32,7 +32,7 @@ fi
 
 # Override agnoster's context segment (moves user@host to right prompt)
 prompt_context() {}
-RPROMPT='%F{240}%f%K{240}%F{black} %n@%m %f%k'
+RPROMPT='%F{240}%f%K{240}%F{black}  %n@%m %f%k'
 
 # =============================================================================
 # Zsh Options (supplement OMZ defaults)
