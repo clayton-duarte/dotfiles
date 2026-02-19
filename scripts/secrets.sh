@@ -2,7 +2,7 @@
 # =============================================================================
 # 1Password Secrets Loader
 # =============================================================================
-# This script fetches secrets from 1Password and generates ~/.config/fish/secrets.fish
+# This script fetches secrets from 1Password and generates ~/.config/zsh/secrets.zsh
 # Run this after bootstrap or when you need to refresh secrets
 
 set -e
@@ -29,10 +29,10 @@ if ! op whoami &> /dev/null; then
     fi
 fi
 
-# Create secrets.fish file
-SECRETS_FILE="$HOME/.config/fish/secrets.fish"
+# Create secrets.zsh file
+SECRETS_FILE="$HOME/.config/zsh/secrets.zsh"
 mkdir -p "$(dirname "$SECRETS_FILE")"
-cat > "$SECRETS_FILE" << 'EOF'
+cat > "$SECRETS_FILE" << EOF
 # =============================================================================
 # Auto-generated secrets from 1Password
 # =============================================================================
@@ -123,6 +123,6 @@ echo ""
 echo "✅ Secrets loaded successfully"
 echo ""
 echo "📝 Loaded:"
-echo "   - API tokens → ~/.config/fish/secrets.fish"
+echo "   - API tokens → ~/.config/zsh/secrets.zsh"
 echo "   - SSH keys → ~/.ssh/id_ed25519"
 echo "   - GitHub CLI authentication"

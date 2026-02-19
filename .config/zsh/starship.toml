@@ -1,0 +1,91 @@
+# =============================================================================
+# Starship Prompt Configuration
+# =============================================================================
+# Replicates agnoster-style powerline segments with right prompt
+# Docs: https://starship.rs/config/
+
+# General
+format = """$directory$git_branch$git_status$git_state$nodejs$python$rust$java$package$cmd_duration$character"""
+right_format = """$username$hostname"""
+add_newline = false
+command_timeout = 1000
+
+# Prompt character
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+
+# Directory — powerline style
+[directory]
+format = "[ $path ]($style)"
+style = "bold blue"
+truncation_length = 5
+truncation_symbol = "…/"
+
+# Git branch — full name (no truncation, matching fish_vcs_branch_name_length 99)
+[git_branch]
+format = "[ $symbol$branch(:$remote_branch)]($style) "
+style = "bold purple"
+symbol = " "
+truncation_length = 99
+truncation_symbol = ""
+
+# Git status
+[git_status]
+format = '([\[$all_status$ahead_behind\]]($style) )'
+style = "bold red"
+
+# Git state (rebase, merge, etc.)
+[git_state]
+format = '[\($state( $progress_current/$progress_total)\)]($style) '
+style = "bold yellow"
+
+# Node.js
+[nodejs]
+format = "[$symbol($version)]($style) "
+style = "bold green"
+symbol = " "
+detect_files = ["package.json", ".node-version", ".nvmrc"]
+detect_extensions = []
+
+# Python
+[python]
+format = "[$symbol($version)]($style) "
+style = "bold yellow"
+symbol = " "
+
+# Rust
+[rust]
+format = "[$symbol($version)]($style) "
+style = "bold red"
+symbol = " "
+
+# Java
+[java]
+format = "[$symbol($version)]($style) "
+style = "bold red"
+symbol = " "
+
+# Package version
+[package]
+format = "[$symbol$version]($style) "
+style = "bold 208"
+symbol = "📦 "
+display_private = true
+
+# Command duration
+[cmd_duration]
+format = "[$duration]($style) "
+style = "bold yellow"
+min_time = 2000  # Only show if command takes >2s
+
+# Right prompt: username@hostname (replaces fish_right_prompt)
+[username]
+format = "[$user](white)"
+style_user = "white"
+show_always = true
+
+[hostname]
+format = "[@$hostname](white)"
+style = "white"
+ssh_only = false

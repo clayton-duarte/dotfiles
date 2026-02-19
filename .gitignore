@@ -5,6 +5,8 @@
 
 # Secrets and tokens (actual values, not scripts)
 secrets.fish
+secrets.zsh
+.zsh_history
 .env
 .env.*
 *.key

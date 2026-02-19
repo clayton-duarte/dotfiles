@@ -1,0 +1,23 @@
+# =============================================================================
+# Sheldon Plugin Manager Configuration
+# =============================================================================
+# Docs: https://sheldon.cli.rs
+# Run `sheldon lock` after changes
+
+shell = "zsh"
+
+# Fish-like autosuggestions (inline grey suggestions as you type)
+[plugins.zsh-autosuggestions]
+github = "zsh-users/zsh-autosuggestions"
+
+# Fish-like syntax highlighting (colorizes commands as you type)
+[plugins.zsh-syntax-highlighting]
+github = "zsh-users/zsh-syntax-highlighting"
+
+# Extended completions for common tools
+[plugins.zsh-completions]
+github = "zsh-users/zsh-completions"
+
+# Fish-like history search with arrow keys
+[plugins.zsh-history-substring-search]
+github = "zsh-users/zsh-history-substring-search"

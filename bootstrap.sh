@@ -95,25 +95,29 @@ chmod +x ./scripts/install.sh
 
 echo ""
 
-# 6. Set fish as default shell
-echo "🐚 Setting fish as default shell..."
+# 6. Set zsh as default shell
+echo "🐚 Setting zsh as default shell..."
 
-# Get fish path
-FISH_PATH=$(which fish)
-
-# Check if fish is in /etc/shells
-if ! grep -q "$FISH_PATH" /etc/shells 2>/dev/null; then
-    echo "  Adding fish to /etc/shells (requires sudo)..."
-    echo "$FISH_PATH" | sudo tee -a /etc/shells
+# Get zsh path (prefer Homebrew zsh on macOS)
+if [[ "$OS" == "macos" ]] && [[ -f /opt/homebrew/bin/zsh ]]; then
+    ZSH_PATH="/opt/homebrew/bin/zsh"
+else
+    ZSH_PATH=$(which zsh)
 fi
 
-# Set fish as default shell
-if [[ "$SHELL" != *"fish"* ]]; then
-    echo "  Setting fish as default shell (requires password)..."
-    chsh -s "$FISH_PATH"
-    echo "✅ Fish set as default shell"
+# Check if zsh is in /etc/shells
+if ! grep -q "$ZSH_PATH" /etc/shells 2>/dev/null; then
+    echo "  Adding zsh to /etc/shells (requires sudo)..."
+    echo "$ZSH_PATH" | sudo tee -a /etc/shells
+fi
+
+# Set zsh as default shell
+if [[ "$SHELL" != *"zsh"* ]]; then
+    echo "  Setting zsh as default shell (requires password)..."
+    chsh -s "$ZSH_PATH"
+    echo "✅ Zsh set as default shell"
 else
-    echo "✅ Fish is already default shell"
+    echo "✅ Zsh is already default shell"
 fi
 
 echo ""
@@ -163,7 +167,7 @@ echo ""
 echo "🎉 Bootstrap complete!"
 echo ""
 echo "Next steps:"
-echo "  1. Restart your terminal (exec fish)"
+echo "  1. Restart your terminal (exec zsh)"
 echo "  2. Your config will auto-sync on terminal startup"
 echo "  3. Use 'config edit' to edit configs"
 echo "  4. SSH config is ready with all hosts configured"

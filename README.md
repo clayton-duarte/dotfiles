@@ -4,7 +4,9 @@ Personal development environment configuration synced across machines.
 
 ## Features
 
-- **Fish Shell** with extensive git workflow functions
+- **Zsh Shell** with modular config and extensive git workflow functions
+- **Starship** cross-shell prompt with powerline styling
+- **Sheldon** plugin manager for autosuggestions, syntax highlighting, and completions
 - **Auto-sync** on terminal startup - automatically pulls/pushes config changes
 - **1Password integration** for secrets management (no hardcoded tokens)
 - **Cross-platform** - works on macOS and Linux
@@ -31,20 +33,20 @@ cd ~/dotfiles
 This will:
 1. Install 1Password CLI
 2. Authenticate with 1Password
-3. Install essential tools (fish, git, gh, node, etc.)
+3. Install essential tools (zsh, git, gh, node, sheldon, starship, etc.)
 4. Pull secrets from 1Password vault
 5. Authenticate GitHub CLI
 6. Symlink all dotfiles
 7. Configure git with SSH signing
-8. Set fish as default shell
+8. Set zsh as default shell
 
-**That's it!** After `bootstrap.sh`, all maintenance is done via fish functions.
+**That's it!** After `bootstrap.sh`, all maintenance is done via zsh functions.
 
-### Maintenance Commands (Fish Functions)
+### Maintenance Commands
 
-After bootstrap, use these fish functions for all operations:
+After bootstrap, use these functions for all operations:
 
-```fish
+```zsh
 # Refresh secrets from 1Password
 config secrets
 
@@ -57,7 +59,7 @@ config edit
 # Manually sync to GitHub
 config sync
 
-# Reload fish config
+# Reload zsh config
 config reload
 
 # Show git status
@@ -65,7 +67,7 @@ config status
 ```
 
 Or call the functions directly:
-```fish
+```zsh
 secrets-refresh      # Refresh secrets from 1Password
 dotfiles-install     # Create/recreate symlinks
 ```
@@ -76,26 +78,30 @@ dotfiles-install     # Create/recreate symlinks
 dotfiles/
 ├── bootstrap.sh                # ⭐ Single setup script (run once)
 ├── .config/
-│   └── fish/
-│       └── config.fish         # Fish config (all maintenance functions)
+│   └── zsh/
+│       ├── .zshenv             # Environment variables & PATH
+│       ├── .zshrc              # Main Zsh config entrypoint
+│       ├── starship.toml       # Starship prompt config
+│       ├── plugins.toml        # Sheldon plugin config
+│       └── modules/
+│           ├── git.zsh         # Git workflow functions
+│           ├── dev.zsh         # Development tools
+│           ├── ssh.zsh         # SSH management
+│           └── dotfiles.zsh    # Dotfiles management & auto-sync
 ├── .ssh/
 │   └── config                  # SSH configuration
 ├── .gitconfig                  # Git configuration
 ├── .gitignore                  # Security-critical!
 ├── scripts/                    # Helper scripts (used by bootstrap only)
-│   ├── install.sh              # Creates symlinks
+│   ├── install.sh              # Creates symlinks + installs Sheldon/Starship
 │   ├── secrets.sh              # Fetches secrets & authenticates tools
 │   ├── macos.sh                # macOS package installation (Homebrew)
 │   └── linux.sh                # Linux package installation (apt/dnf/pacman)
 └── README.md                   # This file
 ```
 
-**Clean root:**
-- `bootstrap.sh` → Single setup script
-- All helper scripts in `scripts/` directory
-
 **After bootstrap:**
-- Use fish functions for all maintenance (no bash scripts needed)
+- Use zsh functions for all maintenance (no bash scripts needed)
 
 ## Auto-Sync Behavior
 
@@ -154,7 +160,7 @@ Secrets are cached on disk for performance. Refresh when:
 - Secrets stop working
 - Setting up a new machine
 
-```fish
+```zsh
 config secrets      # Refresh from 1Password
 # or
 secrets-refresh    # Direct function call
@@ -165,16 +171,16 @@ This will:
 - Fetch all tokens from "Development API Tokens"
 - Fetch SSH keys from "GH SSH Key"
 - Authenticate GitHub CLI
-- Update `~/.config/fish/secrets.fish`
+- Update `~/.config/zsh/secrets.zsh`
 
 ## Config Management
 
 ### Available Commands
 
-```fish
+```zsh
 config edit     # Pull latest, open in VS Code
 config sync     # Manually commit and push changes
-config reload   # Reload fish config
+config reload   # Reload zsh config
 config status   # Show git status
 ```
 
@@ -211,9 +217,7 @@ config status   # Show git status
 
 ### File Operations
 - `checkout <branch>` - Checkout branch and rebase
-- `restore <file>` - Restore file from base branch
-- `revert <file>` - Revert file from base branch
-- `reset <file>` - Reset file from base branch
+- `restore <file>` - Restore file from base branch (aliases: `revert`, `reset`)
 - `nuke` - Clean untracked files (with confirmation)
 
 ## Development Tools
@@ -225,17 +229,13 @@ config status   # Show git status
 
 ## SSH Management
 
-SSH configuration is managed in [`.ssh/config`](.ssh/config:1) with all hosts pre-configured:
-- `homeserver` - 192.168.3.3
-- `fedora` - 192.168.3.4
-- `ml` - 192.168.3.100
-- `_ml` - 10.0.0.100
+SSH configuration is managed in `.ssh/config` with all hosts pre-configured.
 
-All connections use 1Password SSH agent automatically.
+All connections use 1Password SSH agent automatically via `SSH_AUTH_SOCK`.
 
-### SSH Tunneling
+### SSH Functions
 
-```fish
+```zsh
 ssh tunnel  # Creates SOCKS proxy on port 8015
 ssh test    # Test GitHub SSH connection
 ```
@@ -244,47 +244,35 @@ ssh test    # Test GitHub SSH connection
 
 ### macOS
 - Uses Homebrew for package management
-- 1Password agent path: `~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock`
-- Git SSH signing configured automatically
+- 1Password agent: `~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock`
+- Latest Zsh installed via Homebrew (macOS ships with older version)
 
 ### Linux
 - Uses apt/dnf/pacman depending on distro
-- 1Password agent path: `~/.1password/agent.sock`
-- Git SSH signing needs manual setup
+- 1Password agent: `~/.1password/agent.sock`
+- Sheldon/Starship installed via curl installers or cargo
 
 ## Security
 
 **CRITICAL:** This repo contains references to secrets via 1Password CLI.
 
-- ✅ All secrets stored in 1Password, not in git
-- ✅ `secrets.fish` is auto-generated and gitignored
-- ✅ SSH keys are fetched from 1Password, never committed
-- ✅ GitHub CLI token in 1Password, never in environment (unless needed)
-- ✅ `.gitignore` prevents accidental secret commits
+- All secrets stored in 1Password, not in git
+- `secrets.zsh` is auto-generated and gitignored
+- SSH keys are fetched from 1Password, never committed
+- GitHub CLI token in 1Password, never in environment (unless needed)
+- `.gitignore` prevents accidental secret commits
 
 **Never commit:**
-- `~/.config/fish/secrets.fish`
+- `~/.config/zsh/secrets.zsh`
 - `.env` files
 - SSH private keys
 - API tokens / PATs
-- Passwords
-- `~/.config/gh/` directory
-
-**What's synced:**
-- ✅ Configuration files (Fish, git, SSH config)
-- ✅ Scripts and functions
-
-**What's NOT synced:**
-- ❌ Secrets, credentials, tokens
-- ❌ SSH keys
-- ❌ Authentication state
-- ❌ Cache files
 
 ## Customization
 
 ### Adding New Tools
 
-Edit [`scripts/macos.sh`](scripts/macos.sh:1) or [`scripts/linux.sh`](scripts/linux.sh:1):
+Edit `scripts/macos.sh` or `scripts/linux.sh`:
 
 ```bash
 brew "your-package"
@@ -292,73 +280,54 @@ brew "your-package"
 
 ### Adding Secrets
 
-1. Store in 1Password
-2. Edit [`scripts/secrets.sh`](scripts/secrets.sh:1)
-3. Add new `op read` command
-4. Run `~/dotfiles/scripts/secrets.sh`
+1. Store in 1Password "Development API Tokens" item
+2. Open new terminal → automatically loaded!
 
-### Adding Fish Functions
+### Adding Zsh Functions
 
-Edit [`.config/fish/config.fish`](.config/fish/config.fish:1) and run:
+Add to the appropriate module in `.config/zsh/modules/`:
+- Git functions → `git.zsh`
+- Dev tools → `dev.zsh`
+- SSH → `ssh.zsh`
+- Dotfiles management → `dotfiles.zsh`
 
-```fish
-config sync  # Push changes
-```
-
-Other machines will auto-pull on next terminal open.
+Then run `config sync` to push changes.
 
 ## Troubleshooting
 
 ### Auto-sync not working
 
-```fish
-# Check if git repo is initialized
+```bash
 cd ~/dotfiles && git status
-
-# Check if remote is configured
 git remote -v
 ```
 
 ### Secrets not loading
 
-```fish
-# Check if secrets.fish exists
-cat ~/.config/fish/secrets.fish
-
-# Re-fetch from 1Password
+```bash
+cat ~/.config/zsh/secrets.zsh
 ~/dotfiles/scripts/secrets.sh
 ```
 
 ### SSH keys not working
 
-```fish
-# Check 1Password agent
+```bash
 ssh-add -l
-
-# Test GitHub connection
 ssh -T git@github.com
 ```
 
 ### Diverged configs
 
-If auto-sync shows "Diverged":
-
-```fish
+```bash
 cd ~/dotfiles
-git status
 git log --oneline --graph --all -10
-
-# Resolve manually
-git pull --rebase  # or merge
+git pull --rebase
 ```
 
 ### GitHub CLI not authenticated
 
-```fish
-# Check status
+```zsh
 gh auth status
-
-# Re-authenticate
 config secrets  # Refreshes token from 1Password
 ```
 
@@ -370,12 +339,14 @@ config secrets  # Refreshes token from 1Password
 
 ### Auto-installed by bootstrap
 - 1Password CLI (`op`)
-- Fish shell
+- Zsh (latest via Homebrew on macOS)
+- Sheldon (Zsh plugin manager)
+- Starship (cross-shell prompt)
 - GitHub CLI (`gh`)
 - Node.js (via `n` version manager)
 - jq (JSON parsing)
 - neofetch (system info)
-- Powerline fonts (for Fish theme)
+- Nerd Fonts (for Starship prompt)
 
 ## License
 

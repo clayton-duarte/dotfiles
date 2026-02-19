@@ -2,47 +2,32 @@
 
 This document shows what's configured in your dotfiles.
 
-## 1Password Integration ✅
+## 1Password Integration
 
 ### Secrets Configured
 All secrets are **dynamically fetched** from your personal 1Password account (`my.1password.com`, Private vault):
 
 From "Development API Tokens" item (ALL fields auto-discovered):
-- ✅ `ARTIFACTORY_TOKEN`
-- ✅ `NPM_TOKEN`
-- ✅ **Any new tokens you add** (no code changes needed!)
+- `ARTIFACTORY_TOKEN`
+- `NPM_TOKEN`
+- **Any new tokens you add** (no code changes needed!)
 
 ### SSH Keys Configured
-- ✅ `GH SSH Key` → `~/.ssh/id_ed25519` (private key)
-- ✅ `GH SSH Key` → `~/.ssh/id_ed25519.pub` (public key)
+- `GH SSH Key` → `~/.ssh/id_ed25519` (private key)
+- `GH SSH Key` → `~/.ssh/id_ed25519.pub` (public key)
 
 ### How Secrets Are Loaded
 
 **Automatic on every terminal open:**
-- Secrets are fetched fresh from 1Password
-- Always up-to-date, never stale
-- If 1Password is unavailable, uses cached values
-
-**Manual refresh (optional):**
-```fish
-config secrets
-# or
-secrets-refresh
-```
+- Secrets loaded from cached `~/.config/zsh/secrets.zsh`
+- Refresh with `config secrets` or `secrets-refresh`
 
 **Adding new secrets:**
 1. Add field to "Development API Tokens" in 1Password
 2. Open new terminal → automatically loaded!
 3. No code changes or commits needed
 
-**Reinstall symlinks:**
-```fish
-config install
-# or
-dotfiles-install
-```
-
-## Git Configuration ✅
+## Git Configuration
 
 ### User Identity
 ```
@@ -53,12 +38,11 @@ user.name = cpd
 ### SSH Signing
 ```
 gpg.format = ssh
-gpg.ssh.program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
 commit.gpgsign = true
-user.signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIzlrKAQzna6inWC0rg3wCXgL0i0MzYHLxzt+s2Zf+wW
+user.signingkey = ~/.ssh/id_ed25519
 ```
 
-Commits are automatically signed using your SSH key from 1Password.
+Commits are automatically signed using your SSH key.
 
 ### Other Settings
 - Auto-setup remote on push
@@ -66,21 +50,9 @@ Commits are automatically signed using your SSH key from 1Password.
 - Auto-stash on rebase
 - VS Code as editor
 
-## SSH Configuration ✅
+## SSH Configuration
 
-All SSH connections use 1Password agent automatically.
-
-### Configured Hosts
-```
-homeserver → 192.168.3.3 (user: clayton)
-fedora     → 192.168.3.4 (user: clayton)
-ml         → 192.168.3.100 (user: clayton.duarte)
-_ml        → 10.0.0.100 (user: clayton.duarte)
-```
-
-### SSH Config Location
-- **Managed in:** `~/dotfiles/.ssh/config`
-- **Symlinked to:** `~/.ssh/config`
+All SSH connections use 1Password agent automatically via `SSH_AUTH_SOCK`.
 
 ### 1Password SSH Agent Path
 ```
@@ -88,7 +60,26 @@ macOS: ~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock
 Linux: ~/.1password/agent.sock
 ```
 
-## Fish Shell Configuration ✅
+Set in `.config/zsh/.zshenv` and exported as `SSH_AUTH_SOCK`.
+
+## Zsh Shell Configuration
+
+### Architecture
+Modular config split across focused files:
+- `.zshenv` — Environment variables & PATH (loaded first)
+- `.zshrc` — Main entrypoint: plugins, prompt, options, module loading
+- `modules/git.zsh` — Git workflow functions
+- `modules/dev.zsh` — Development tools
+- `modules/ssh.zsh` — SSH management
+- `modules/dotfiles.zsh` — Dotfiles management & auto-sync
+
+### Plugin Stack
+- **Sheldon** — Plugin manager (TOML config in `plugins.toml`)
+- **Starship** — Cross-shell prompt (TOML config in `starship.toml`)
+- **zsh-autosuggestions** — Fish-like inline suggestions
+- **zsh-syntax-highlighting** — Fish-like command coloring
+- **zsh-completions** — Extended tab completions
+- **zsh-history-substring-search** — Fish-like history search with arrow keys
 
 ### Auto-Sync Behavior
 Every time you open a new terminal:
@@ -98,16 +89,14 @@ Every time you open a new terminal:
 4. Warns if diverged
 
 ### Environment Variables
-```fish
+```zsh
 ANDROID_HOME=$HOME/Library/Android/sdk
 BASE_BRANCH=main
+SSH_AUTH_SOCK=<1Password agent path>
+STARSHIP_CONFIG=~/.config/zsh/starship.toml
 ```
 
-Plus secrets from `~/.config/fish/secrets.fish`:
-- ARTIFACTORY_TOKEN
-- FONT_AWESOME_TOKEN
-- NPM_TOKEN
-- SARDINE_NPM_TOKEN
+Plus secrets from `~/.config/zsh/secrets.zsh`.
 
 ### Git Workflow Functions
 - `fetch` - Git fetch
@@ -122,7 +111,7 @@ Plus secrets from `~/.config/fish/secrets.fish`:
 - `clean` - Remove merged branches
 - `rebase [branch]` - Rebase utilities
 - `checkout <branch>` - Checkout and rebase
-- `restore <file>` - Restore from base
+- `restore <file>` - Restore from base (aliases: `revert`, `reset`)
 - `nuke` - Clean untracked files (with confirmation)
 - `pr` - Create draft PR
 
@@ -135,56 +124,62 @@ Plus secrets from `~/.config/fish/secrets.fish`:
 ### Config Management
 - `config edit` - Open in VS Code
 - `config sync` - Manually push changes
-- `config reload` - Reload fish config
+- `config reload` - Reload zsh config
 - `config status` - Show git status
+- `config install` - Reinstall symlinks
+- `config secrets` - Refresh from 1Password
 
 ### SSH Functions
 - `ssh tunnel` - Create SOCKS proxy on port 8015
 - `ssh test` - Test GitHub connection
 
-### Other Functions
-- HAL 9000 greeting on startup
-- Right prompt shows: `user@hostname`
-
 ## Directory Structure
 
 ```
 ~/dotfiles/
-├── bootstrap.sh                ✅ Single setup script (run once)
+├── bootstrap.sh                Setup script (run once)
 ├── .config/
-│   └── fish/
-│       └── config.fish         ✅ Fish config + maintenance functions
+│   └── zsh/
+│       ├── .zshenv             Environment variables & PATH
+│       ├── .zshrc              Main Zsh config entrypoint
+│       ├── starship.toml       Starship prompt config
+│       ├── plugins.toml        Sheldon plugin config
+│       └── modules/
+│           ├── git.zsh         Git workflow functions
+│           ├── dev.zsh         Development tools
+│           ├── ssh.zsh         SSH management
+│           └── dotfiles.zsh    Dotfiles management & auto-sync
 ├── .ssh/
-│   └── config                  ✅ SSH hosts configuration
-├── .gitconfig                  ✅ Git configuration
-├── .gitignore                  ✅ Security rules
-├── scripts/                    ✅ Helper scripts (bootstrap only)
-│   ├── install.sh              ✅ Symlink creator
-│   ├── secrets.sh              ✅ 1Password secrets loader
-│   ├── macos.sh                ✅ macOS setup script
-│   └── linux.sh                ✅ Linux setup script
-└── README.md                   ✅ Full documentation
+│   └── config                  SSH hosts configuration
+├── .gitconfig                  Git configuration
+├── .gitignore                  Security rules
+├── scripts/
+│   ├── install.sh              Symlink creator + plugin setup
+│   ├── secrets.sh              1Password secrets loader
+│   ├── macos.sh                macOS setup script
+│   └── linux.sh                Linux setup script
+├── README.md                   Full documentation
+└── SETUP.md                    This file
 ```
-
-**Root:**
-- Only `bootstrap.sh` (clean!)
-
-**Maintenance:**
-- Fish functions only (no bash scripts to run)
 
 ## Symlinks Created
 
 When you run `install.sh`:
 ```
-~/.config/fish/config.fish → ~/dotfiles/.config/fish/config.fish
-~/.ssh/config → ~/dotfiles/.ssh/config
-~/.gitconfig → ~/dotfiles/.gitconfig
+~/.zshenv                       → ~/dotfiles/.config/zsh/.zshenv
+~/.config/zsh/.zshenv           → ~/dotfiles/.config/zsh/.zshenv
+~/.config/zsh/.zshrc            → ~/dotfiles/.config/zsh/.zshrc
+~/.config/zsh/starship.toml     → ~/dotfiles/.config/zsh/starship.toml
+~/.config/zsh/plugins.toml      → ~/dotfiles/.config/zsh/plugins.toml
+~/.config/zsh/modules/*.zsh     → ~/dotfiles/.config/zsh/modules/*.zsh
+~/.ssh/config                   → ~/dotfiles/.ssh/config
+~/.gitconfig                    → ~/dotfiles/.gitconfig
 ```
 
 ## Files NOT in Git (Security)
 
 These are auto-generated and gitignored:
-- `~/.config/fish/secrets.fish` - Contains actual token values
+- `~/.config/zsh/secrets.zsh` - Contains actual token values
 - `~/.ssh/id_ed25519` - Your private SSH key
 - `~/.ssh/id_ed25519.pub` - Your public SSH key
 - `~/.ssh/allowed_signers` - For commit verification
@@ -197,9 +192,9 @@ op account list
 ```
 
 ### 2. Test Secrets Loading
-```fish
+```zsh
 secrets-refresh
-cat ~/.config/fish/secrets.fish  # Should show your tokens
+cat ~/.config/zsh/secrets.zsh  # Should show your tokens
 ```
 
 ### 3. Test SSH Key
@@ -215,92 +210,67 @@ git commit --allow-empty -m "Test signed commit"
 git log --show-signature -1
 ```
 
-### 5. Test Fish Config
+### 5. Test Zsh Config
 ```bash
-exec fish
-# Should show HAL 9000 greeting
+exec zsh
+# Should show neofetch
 # Should auto-sync dotfiles
 ```
 
-## Next Steps
+### 6. Test Starship Prompt
+```bash
+# Should show powerline-style prompt with git info
+# Right prompt should show user@hostname
+```
 
-1. **Initialize Git Repo**
-   ```bash
-   cd ~/dotfiles
-   git init
-   git add .
-   git commit -m "Initial dotfiles setup"
-   ```
-
-2. **Create Private GitHub Repo**
-   ```bash
-   gh repo create dotfiles --private --source=. --push
-   ```
-
-3. **Test Locally**
-   ```bash
-   cd ~/dotfiles
-   ./install.sh
-   exec fish
-   ```
-
-4. **On Fresh Machine**
-   ```bash
-   git clone https://github.com/yourusername/dotfiles.git ~/dotfiles
-   cd ~/dotfiles
-   ./bootstrap.sh
-   ```
+### 7. Test Plugins
+```bash
+# Type a command slowly — autosuggestions should appear in grey
+# Mistyped commands should appear in red (syntax highlighting)
+# Up arrow should search history by substring
+```
 
 ## Troubleshooting
 
 ### Secrets Not Loading
 ```bash
-# Check 1Password authentication
 op account list
-
-# Re-authenticate
 eval $(op signin --account my.1password.com)
 ```
 
-```fish
-# Reload secrets
+```zsh
 secrets-refresh
 ```
 
 ### SSH Not Working
 ```bash
-# Check SSH key exists
 ls -la ~/.ssh/id_ed25519
-
-# Check 1Password agent
 ssh-add -l
-
-# Test GitHub
 ssh -T git@github.com
 ```
 
 ### Git Signing Failing
 ```bash
-# Check signing config
 git config --list | grep sign
-
-# Check allowed_signers
 cat ~/.ssh/allowed_signers
-
-# Test commit
 git commit --allow-empty -m "Test" -S
 ```
 
 ### Auto-Sync Not Working
 ```bash
-# Check if repo is initialized
 cd ~/dotfiles && git status
-
-# Check remote
 git remote -v
+git fetch && git pull
+```
 
-# Manual sync
-cd ~/dotfiles
-git fetch
-git pull
+### Sheldon Plugins Not Loading
+```bash
+sheldon lock    # Re-download plugins
+sheldon source  # Verify output
+```
+
+### Starship Not Rendering
+```bash
+starship prompt  # Test prompt rendering
+echo $STARSHIP_CONFIG  # Should point to starship.toml
 ```

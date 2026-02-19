@@ -22,7 +22,7 @@ case $DISTRO in
         sudo apt update
         sudo apt install -y \
             git \
-            fish \
+            zsh \
             curl \
             jq \
             gh \
@@ -34,7 +34,7 @@ case $DISTRO in
         # Bazzite is immutable, packages should be layered
         sudo rpm-ostree install -y \
             git \
-            fish \
+            zsh \
             curl \
             jq \
             gh \
@@ -42,7 +42,7 @@ case $DISTRO in
             neofetch || \
         sudo dnf install -y \
             git \
-            fish \
+            zsh \
             curl \
             jq \
             gh \
@@ -54,7 +54,7 @@ case $DISTRO in
         # SteamOS is immutable, might need pacman or flatpak
         sudo pacman -S --noconfirm \
             git \
-            fish \
+            zsh \
             curl \
             jq \
             github-cli \
@@ -63,7 +63,7 @@ case $DISTRO in
         ;;
     *)
         echo "⚠️  Unsupported distribution: $DISTRO"
-        echo "Please install git, fish, gh, curl, jq, and powerline-fonts manually"
+        echo "Please install git, zsh, gh, curl, jq, and powerline-fonts manually"
         ;;
 esac
 
@@ -83,6 +83,26 @@ if ! command -v node &> /dev/null; then
     n lts
 else
     echo "✅ Node.js already installed ($(node --version))"
+fi
+
+# Install Sheldon (Zsh plugin manager)
+if ! command -v sheldon &> /dev/null; then
+    echo "📦 Installing Sheldon plugin manager..."
+    if command -v cargo &> /dev/null; then
+        cargo install sheldon
+    else
+        curl --proto '=https' -fLsS https://rosav0.github.io/sheldon/install.sh | bash
+    fi
+else
+    echo "✅ Sheldon already installed"
+fi
+
+# Install Starship prompt
+if ! command -v starship &> /dev/null; then
+    echo "📦 Installing Starship prompt..."
+    curl -sS https://starship.rs/install.sh | sh -s -- -y
+else
+    echo "✅ Starship already installed"
 fi
 
 echo "✅ Linux setup complete"
