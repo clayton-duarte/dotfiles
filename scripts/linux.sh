@@ -96,13 +96,18 @@ fi
 # =============================================================================
 # Run install_cmd for packages without a native name on this distro
 # =============================================================================
-while IFS= read -r cmd; do
+while IFS=$'\t' read -r name cmd; do
     if [ -n "$cmd" ]; then
-        echo "📦 Running custom install command..."
+        # Skip if the command is already installed
+        if command -v "$name" &> /dev/null; then
+            echo "✅ $name already installed"
+            continue
+        fi
+        echo "📦 Running custom install command for $name..."
         echo "  $ $cmd"
         eval "$cmd"
     fi
-done < <(jq -r --arg key "$PM_KEY" 'to_entries[] | select(.value[$key] == null and .value.install_cmd) | .value.install_cmd' "$PACKAGES_JSON")
+done < <(jq -r --arg key "$PM_KEY" 'to_entries[] | select(.value[$key] == null and .value.install_cmd) | [.key, .value.install_cmd] | @tsv' "$PACKAGES_JSON")
 
 # =============================================================================
 # Post-install: Node.js via n
