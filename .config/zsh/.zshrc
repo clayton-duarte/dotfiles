@@ -14,6 +14,9 @@ fi
 # =============================================================================
 # Plugin Manager (Sheldon)
 # =============================================================================
+export SHELDON_CONFIG_DIR="${ZDOTDIR}"
+export SHELDON_DATA_DIR="${ZDOTDIR}/sheldon"
+
 if command -v sheldon &>/dev/null; then
     eval "$(sheldon source)"
 fi
@@ -78,7 +81,7 @@ for module in "${ZDOTDIR}/modules/"*.zsh(N); do
 done
 
 # =============================================================================
-# Startup (once per session)
+# Startup (once per session via precmd hook)
 # =============================================================================
 __startup_done=0
 __startup() {
@@ -92,25 +95,9 @@ __startup() {
 
     # Auto-sync dotfiles
     __dotfiles_sync
-}
-
-# Run startup on first prompt via precmd hook
-precmd_functions+=(__startup)
-
-# Remove from hook after first run
-__startup() {
-    if (( ! __startup_done )); then
-        __startup_done=1
-
-        # Show neofetch if installed
-        if command -v neofetch &>/dev/null; then
-            neofetch
-        fi
-
-        # Auto-sync dotfiles
-        __dotfiles_sync
-    fi
 
     # Remove ourselves from precmd after first run
     precmd_functions=(${precmd_functions:#__startup})
 }
+
+precmd_functions+=(__startup)
