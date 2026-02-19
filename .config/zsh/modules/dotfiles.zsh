@@ -89,6 +89,7 @@ __dotfiles_sync() {
         done
     ) &
     spinner_pid=$!
+    disown $spinner_pid  # Detach from job control to suppress termination messages
 
     # Save current directory
     local prev_dir="$PWD"
@@ -103,7 +104,6 @@ __dotfiles_sync() {
     fi
     if [[ $fetch_status -ne 0 ]]; then
         kill $spinner_pid 2>/dev/null
-        wait $spinner_pid 2>/dev/null
         cd "$prev_dir"
         if [[ $fetch_status -eq 124 ]]; then
             echo -e "\r\033[K\033[90m⚠️  Dotfiles sync timed out\033[0m"
@@ -130,7 +130,6 @@ __dotfiles_sync() {
     if [[ "$local_commit" == "$remote_commit" ]]; then
         # Up to date
         kill $spinner_pid 2>/dev/null
-        wait $spinner_pid 2>/dev/null
         echo -e "\r\033[K"
     elif [[ "$local_commit" == "$base_commit" ]]; then
         # Need to pull
@@ -141,7 +140,6 @@ __dotfiles_sync() {
             git pull --quiet --rebase 2>/dev/null || pull_status=$?
         fi
         kill $spinner_pid 2>/dev/null
-        wait $spinner_pid 2>/dev/null
         if [[ $pull_status -ne 0 ]]; then
             if [[ $pull_status -eq 124 ]]; then
                 echo -e "\r\033[K\033[90m⚠️  Dotfiles pull timed out\033[0m"
@@ -161,7 +159,6 @@ __dotfiles_sync() {
             git push --quiet 2>/dev/null || push_status=$?
         fi
         kill $spinner_pid 2>/dev/null
-        wait $spinner_pid 2>/dev/null
         if [[ $push_status -ne 0 ]]; then
             if [[ $push_status -eq 124 ]]; then
                 echo -e "\r\033[K\033[90m⚠️  Dotfiles push timed out\033[0m"
@@ -175,7 +172,6 @@ __dotfiles_sync() {
     else
         # Diverged
         kill $spinner_pid 2>/dev/null
-        wait $spinner_pid 2>/dev/null
         echo -e "\r\033[K\033[90m⚠️  Dotfiles diverged\033[0m"
     fi
 
