@@ -64,6 +64,9 @@ config() {
 # Auto-sync dotfiles on startup
 # =============================================================================
 __dotfiles_sync() {
+    # Suppress background job notifications (restore on function exit)
+    setopt LOCAL_OPTIONS NO_MONITOR NO_NOTIFY
+
     # Only sync if dotfiles repo exists
     if [[ ! -d ~/dotfiles/.git ]]; then
         return
@@ -89,7 +92,6 @@ __dotfiles_sync() {
         done
     ) &
     spinner_pid=$!
-    disown $spinner_pid  # Detach from job control to suppress termination messages
 
     # Save current directory
     local prev_dir="$PWD"
