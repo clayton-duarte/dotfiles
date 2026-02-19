@@ -9,9 +9,7 @@ dotfiles/
 ├── bootstrap.sh           # One-time setup entry point
 ├── .config/zsh/
 │   ├── .zshenv            # Environment variables & PATH (also symlinked to ~/.zshenv)
-│   ├── .zshrc             # Main Zsh config entrypoint
-│   ├── starship.toml      # Starship prompt configuration
-│   ├── plugins.toml       # Sheldon plugin manager config
+│   ├── .zshrc             # Main Zsh config entrypoint (Oh My Zsh + agnoster)
 │   └── modules/
 │       ├── git.zsh        # Git workflow functions
 │       ├── dev.zsh        # Development tool functions
@@ -20,7 +18,7 @@ dotfiles/
 ├── .ssh/config            # SSH host configurations
 ├── .gitconfig             # Git settings with SSH signing
 └── scripts/
-    ├── install.sh         # Symlink creation + Sheldon/Starship install (idempotent)
+    ├── install.sh         # Symlink creation + Oh My Zsh install (idempotent)
     ├── secrets.sh         # 1Password secrets fetch
     ├── macos.sh           # Homebrew packages
     └── linux.sh           # apt/dnf/pacman packages
@@ -57,8 +55,8 @@ config reload     # Reload Zsh config
 - Set `chmod 600` on secrets/keys, `chmod 700` on `.ssh/`
 - Linux scripts must detect distro via `/etc/os-release`
 - 1Password agent paths differ by OS—use case statements
-- Plugin management via **Sheldon** (TOML config)
-- Prompt via **Starship** (TOML config, shell-agnostic)
+- Plugin management via **Oh My Zsh** (built-in + custom plugins in `$ZSH_CUSTOM`)
+- Prompt via **agnoster** theme (powerline style, requires Nerd/Powerline font)
 
 ## Security
 

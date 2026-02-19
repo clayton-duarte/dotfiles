@@ -74,12 +74,11 @@ Modular config split across focused files:
 - `modules/dotfiles.zsh` — Dotfiles management & auto-sync
 
 ### Plugin Stack
-- **Sheldon** — Plugin manager (TOML config in `plugins.toml`)
-- **Starship** — Cross-shell prompt (TOML config in `starship.toml`)
-- **zsh-autosuggestions** — Fish-like inline suggestions
-- **zsh-syntax-highlighting** — Fish-like command coloring
-- **zsh-completions** — Extended tab completions
-- **zsh-history-substring-search** — Fish-like history search with arrow keys
+- **Oh My Zsh** — Framework with agnoster theme
+- **zsh-autosuggestions** — Fish-like inline suggestions (custom plugin)
+- **zsh-syntax-highlighting** — Fish-like command coloring (custom plugin)
+- **history-substring-search** — Fish-like history search with arrow keys (OMZ bundled)
+- **git** — Git aliases and functions (OMZ bundled)
 
 ### Auto-Sync Behavior
 Every time you open a new terminal:
@@ -93,7 +92,6 @@ Every time you open a new terminal:
 ANDROID_HOME=$HOME/Library/Android/sdk
 BASE_BRANCH=main
 SSH_AUTH_SOCK=<1Password agent path>
-STARSHIP_CONFIG=~/.config/zsh/starship.toml
 ```
 
 Plus secrets from `~/.config/zsh/secrets.zsh`.
@@ -141,20 +139,18 @@ Plus secrets from `~/.config/zsh/secrets.zsh`.
 ├── .config/
 │   └── zsh/
 │       ├── .zshenv             Environment variables & PATH
-│       ├── .zshrc              Main Zsh config entrypoint
-│       ├── starship.toml       Starship prompt config
-│       ├── plugins.toml        Sheldon plugin config
+│       ├── .zshrc              Main Zsh config (Oh My Zsh + agnoster)
 │       └── modules/
 │           ├── git.zsh         Git workflow functions
 │           ├── dev.zsh         Development tools
 │           ├── ssh.zsh         SSH management
-│           └── dotfiles.zsh    Dotfiles management & auto-sync
+│           └── dotfiles.zsh    # Dotfiles management & auto-sync
 ├── .ssh/
 │   └── config                  SSH hosts configuration
 ├── .gitconfig                  Git configuration
 ├── .gitignore                  Security rules
 ├── scripts/
-│   ├── install.sh              Symlink creator + plugin setup
+│   ├── install.sh              Symlink creator + Oh My Zsh setup
 │   ├── secrets.sh              1Password secrets loader
 │   ├── macos.sh                macOS setup script
 │   └── linux.sh                Linux setup script
@@ -169,8 +165,6 @@ When you run `install.sh`:
 ~/.zshenv                       → ~/dotfiles/.config/zsh/.zshenv
 ~/.config/zsh/.zshenv           → ~/dotfiles/.config/zsh/.zshenv
 ~/.config/zsh/.zshrc            → ~/dotfiles/.config/zsh/.zshrc
-~/.config/zsh/starship.toml     → ~/dotfiles/.config/zsh/starship.toml
-~/.config/zsh/plugins.toml      → ~/dotfiles/.config/zsh/plugins.toml
 ~/.config/zsh/modules/*.zsh     → ~/dotfiles/.config/zsh/modules/*.zsh
 ~/.ssh/config                   → ~/dotfiles/.ssh/config
 ~/.gitconfig                    → ~/dotfiles/.gitconfig
@@ -217,9 +211,9 @@ exec zsh
 # Should auto-sync dotfiles
 ```
 
-### 6. Test Starship Prompt
+### 6. Test Prompt
 ```bash
-# Should show powerline-style prompt with git info
+# Should show powerline-style agnoster prompt with git info
 # Right prompt should show user@hostname
 ```
 
@@ -263,14 +257,16 @@ git remote -v
 git fetch && git pull
 ```
 
-### Sheldon Plugins Not Loading
+### Oh My Zsh Plugins Not Loading
 ```bash
-sheldon lock    # Re-download plugins
-sheldon source  # Verify output
+# Check custom plugins are installed
+ls ~/.oh-my-zsh/custom/plugins/
+# Reinstall
+config install
 ```
 
-### Starship Not Rendering
+### Prompt Not Rendering
 ```bash
-starship prompt  # Test prompt rendering
-echo $STARSHIP_CONFIG  # Should point to starship.toml
+# Ensure a Powerline-compatible font is set in your terminal (e.g., MesloLGS NF)
+echo "\ue0b0"  # Should show a powerline arrow
 ```

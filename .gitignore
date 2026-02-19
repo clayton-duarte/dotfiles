@@ -4,7 +4,6 @@
 # CRITICAL: Secrets must NEVER be committed to git
 
 # Secrets and tokens (actual values, not scripts)
-secrets.fish
 secrets.zsh
 .zsh_history
 .env

@@ -5,11 +5,11 @@ Personal development environment configuration synced across machines.
 ## Features
 
 - **Zsh Shell** with modular config and extensive git workflow functions
-- **Starship** cross-shell prompt with powerline styling
-- **Sheldon** plugin manager for autosuggestions, syntax highlighting, and completions
-- **Auto-sync** on terminal startup - automatically pulls/pushes config changes
+- **Oh My Zsh** with **agnoster** powerline theme and custom right prompt
+- **Plugins** — autosuggestions, syntax highlighting, history substring search
+- **Auto-sync** on terminal startup — automatically pulls/pushes config changes
 - **1Password integration** for secrets management (no hardcoded tokens)
-- **Cross-platform** - works on macOS and Linux
+- **Cross-platform** — works on macOS and Linux
 - **GitHub CLI** auto-authentication via 1Password
 - **SSH management** with automated key deployment
 - **Git commit signing** via SSH keys
@@ -33,12 +33,13 @@ cd ~/dotfiles
 This will:
 1. Install 1Password CLI
 2. Authenticate with 1Password
-3. Install essential tools (zsh, git, gh, node, sheldon, starship, etc.)
+3. Install essential tools (zsh, git, gh, node, etc.)
 4. Pull secrets from 1Password vault
 5. Authenticate GitHub CLI
 6. Symlink all dotfiles
-7. Configure git with SSH signing
-8. Set zsh as default shell
+7. Install Oh My Zsh + plugins
+8. Configure git with SSH signing
+9. Set zsh as default shell
 
 **That's it!** After `bootstrap.sh`, all maintenance is done via zsh functions.
 
@@ -80,9 +81,7 @@ dotfiles/
 ├── .config/
 │   └── zsh/
 │       ├── .zshenv             # Environment variables & PATH
-│       ├── .zshrc              # Main Zsh config entrypoint
-│       ├── starship.toml       # Starship prompt config
-│       ├── plugins.toml        # Sheldon plugin config
+│       ├── .zshrc              # Main Zsh config (Oh My Zsh + agnoster)
 │       └── modules/
 │           ├── git.zsh         # Git workflow functions
 │           ├── dev.zsh         # Development tools
@@ -93,7 +92,7 @@ dotfiles/
 ├── .gitconfig                  # Git configuration
 ├── .gitignore                  # Security-critical!
 ├── scripts/                    # Helper scripts (used by bootstrap only)
-│   ├── install.sh              # Creates symlinks + installs Sheldon/Starship
+│   ├── install.sh              # Creates symlinks + installs Oh My Zsh + plugins
 │   ├── secrets.sh              # Fetches secrets & authenticates tools
 │   ├── macos.sh                # macOS package installation (Homebrew)
 │   └── linux.sh                # Linux package installation (apt/dnf/pacman)
@@ -250,7 +249,7 @@ ssh test    # Test GitHub SSH connection
 ### Linux
 - Uses apt/dnf/pacman depending on distro
 - 1Password agent: `~/.1password/agent.sock`
-- Sheldon/Starship installed via curl installers or cargo
+- Oh My Zsh + plugins installed via git clone
 
 ## Security
 
@@ -331,22 +330,36 @@ gh auth status
 config secrets  # Refreshes token from 1Password
 ```
 
+### Oh My Zsh plugins not working
+
+```bash
+# Check custom plugins are installed
+ls ~/.oh-my-zsh/custom/plugins/
+# Reinstall if missing
+config install
+```
+
+### Prompt not rendering correctly
+
+Make sure your terminal is using a Powerline-compatible font (e.g., MesloLGS NF).
+The agnoster theme requires powerline glyphs for the arrow segments.
+
 ## Requirements
 
 ### Prerequisites (install manually)
-- **git** - For cloning the repo
-- **1Password app** - For secrets management
+- **git** — For cloning the repo
+- **1Password app** — For secrets management
 
 ### Auto-installed by bootstrap
 - 1Password CLI (`op`)
 - Zsh (latest via Homebrew on macOS)
-- Sheldon (Zsh plugin manager)
-- Starship (cross-shell prompt)
+- Oh My Zsh (framework + agnoster theme)
+- zsh-autosuggestions, zsh-syntax-highlighting (custom plugins)
 - GitHub CLI (`gh`)
 - Node.js (via `n` version manager)
 - jq (JSON parsing)
 - neofetch (system info)
-- Nerd Fonts (for Starship prompt)
+- Powerline fonts (for agnoster prompt)
 
 ## License
 
