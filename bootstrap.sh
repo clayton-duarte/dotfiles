@@ -58,15 +58,14 @@ echo "🔐 Authenticating with 1Password..."
 if ! op whoami &> /dev/null; then
     echo "🔑 Please sign in to 1Password..."
     if op account list &> /dev/null; then
-        # CLI v2: biometric/system auth handles signin automatically
-        op signin || {
+        eval "$(op signin)" || {
             echo "❌ Failed to authenticate with 1Password"
             echo "Please check your credentials and try again"
             exit 1
         }
     else
-        # Fallback: no accounts configured yet
-        op signin || {
+        # No accounts configured yet — interactive setup
+        eval "$(op signin)" || {
             echo "❌ Failed to authenticate with 1Password"
             echo "Please check your credentials and try again"
             exit 1
