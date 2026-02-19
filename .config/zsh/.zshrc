@@ -30,6 +30,10 @@ if [[ -f "${ZSH}/oh-my-zsh.sh" ]]; then
     source "${ZSH}/oh-my-zsh.sh"
 fi
 
+# Override agnoster's context segment (moves user@host to right prompt)
+prompt_context() {}
+RPROMPT='%F{white}%n@%m%f'
+
 # =============================================================================
 # Zsh Options (supplement OMZ defaults)
 # =============================================================================
