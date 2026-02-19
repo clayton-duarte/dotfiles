@@ -7,7 +7,6 @@
 secrets.fish
 secrets.zsh
 .zsh_history
-sheldon/
 .env
 .env.*
 *.key

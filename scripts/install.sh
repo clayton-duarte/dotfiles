@@ -65,8 +65,6 @@ mkdir -p "$HOME/.config/zsh"
 # Link individual zsh files (not the whole dir, since secrets.zsh lives there)
 link .config/zsh/.zshenv
 link .config/zsh/.zshrc
-link .config/zsh/starship.toml
-link .config/zsh/plugins.toml
 
 # Link zsh modules
 mkdir -p "$HOME/.config/zsh/modules"
@@ -98,47 +96,30 @@ fi
 # link .vimrc
 # link .npmrc
 
-# Install Sheldon plugin manager
+# Install Oh My Zsh
 echo ""
-echo "🔌 Setting up Sheldon plugin manager..."
-if ! command -v sheldon &> /dev/null; then
-    if command -v brew &> /dev/null; then
-        echo "📦 Installing Sheldon via Homebrew..."
-        brew install sheldon
-    elif command -v cargo &> /dev/null; then
-        echo "📦 Installing Sheldon via Cargo..."
-        cargo install sheldon
-    else
-        echo "📦 Installing Sheldon via installer..."
-        curl --proto '=https' -fLsS https://rosav0.github.io/sheldon/install.sh | bash
-    fi
-fi
-
-# Point Sheldon to our config
-export SHELDON_CONFIG_DIR="$HOME/.config/zsh"
-export SHELDON_DATA_DIR="$HOME/.config/zsh/sheldon"
-
-# Lock plugins (downloads them)
-if command -v sheldon &> /dev/null; then
-    sheldon lock
-    echo -e "${GREEN}✓${NC} Sheldon plugins installed"
+echo "🔌 Setting up Oh My Zsh..."
+if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+    echo "📦 Installing Oh My Zsh..."
+    RUNZSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 else
-    echo -e "${YELLOW}⚠️  Sheldon not found, plugins not installed${NC}"
+    echo -e "${GREEN}✓${NC} Oh My Zsh already installed"
 fi
 
-# Install Starship prompt
-echo ""
-echo "🚀 Setting up Starship prompt..."
-if ! command -v starship &> /dev/null; then
-    if command -v brew &> /dev/null; then
-        echo "📦 Installing Starship via Homebrew..."
-        brew install starship
-    else
-        echo "📦 Installing Starship via installer..."
-        curl -sS https://starship.rs/install.sh | sh -s -- -y
-    fi
+# Install custom plugins (not bundled with OMZ)
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+
+if [[ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]]; then
+    echo "📦 Installing zsh-autosuggestions..."
+    git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
 fi
-echo -e "${GREEN}✓${NC} Starship prompt ready"
+
+if [[ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]]; then
+    echo "📦 Installing zsh-syntax-highlighting..."
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
+fi
+
+echo -e "${GREEN}✓${NC} Oh My Zsh plugins ready"
 
 echo ""
 echo "✅ Dotfiles installed successfully!"

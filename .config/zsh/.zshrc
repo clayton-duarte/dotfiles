@@ -12,35 +12,30 @@ if [[ -f "${ZDOTDIR}/secrets.zsh" ]]; then
 fi
 
 # =============================================================================
-# Plugin Manager (Sheldon)
+# Oh My Zsh
 # =============================================================================
-export SHELDON_CONFIG_DIR="${ZDOTDIR}"
-export SHELDON_DATA_DIR="${ZDOTDIR}/sheldon"
+export ZSH="${HOME}/.oh-my-zsh"
+ZSH_THEME="agnoster"
 
-if command -v sheldon &>/dev/null; then
-    eval "$(sheldon source)"
+# Plugins (bundled with OMZ + custom cloned into $ZSH_CUSTOM/plugins/)
+plugins=(
+    git
+    zsh-autosuggestions
+    zsh-syntax-highlighting
+    history-substring-search
+)
+
+# Load Oh My Zsh
+if [[ -f "${ZSH}/oh-my-zsh.sh" ]]; then
+    source "${ZSH}/oh-my-zsh.sh"
 fi
 
 # =============================================================================
-# Prompt (Starship)
-# =============================================================================
-if command -v starship &>/dev/null; then
-    eval "$(starship init zsh)"
-fi
-
-# =============================================================================
-# Zsh Options
+# Zsh Options (supplement OMZ defaults)
 # =============================================================================
 setopt AUTO_CD              # cd by typing directory name
 setopt AUTO_PUSHD           # Push dirs onto stack automatically
 setopt PUSHD_IGNORE_DUPS    # No duplicate dirs in stack
-setopt HIST_IGNORE_ALL_DUPS # Remove older duplicate entries from history
-setopt HIST_FIND_NO_DUPS    # Don't show duplicates when searching
-setopt HIST_REDUCE_BLANKS   # Remove superfluous blanks from history
-setopt SHARE_HISTORY        # Share history across sessions
-setopt APPEND_HISTORY       # Append instead of overwrite
-setopt INC_APPEND_HISTORY   # Write immediately, not on exit
-setopt EXTENDED_GLOB        # Extended globbing syntax
 setopt NO_BEEP              # Silence
 
 HISTFILE="${ZDOTDIR}/.zsh_history"

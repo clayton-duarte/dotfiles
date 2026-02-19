@@ -24,14 +24,12 @@ brew bundle --file=- <<EOF
 brew "git"
 brew "gh"          # GitHub CLI (for pr command)
 brew "zsh"         # Latest Zsh (macOS ships with older version)
-brew "sheldon"     # Zsh plugin manager
-brew "starship"    # Cross-shell prompt
 brew "n"           # Node version manager
 brew "jq"          # JSON parser (for secrets script)
 brew "neofetch"    # System info display
 
 # Fonts
-cask "font-meslo-lg-nerd-font"  # Nerd Font for Starship prompt
+cask "font-meslo-lg-nerd-font"  # Nerd Font for powerline prompt
 EOF
 
 echo "✅ macOS setup complete"

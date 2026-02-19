@@ -18,9 +18,6 @@ export CLAUDE_CODE_USE_VERTEX=1
 export CLOUD_ML_REGION="global"
 export ANTHROPIC_VERTEX_PROJECT_ID="team-engineering-dev-wfuk"
 
-# Starship prompt config location
-export STARSHIP_CONFIG="${HOME}/.config/zsh/starship.toml"
-
 # =============================================================================
 # Platform-specific Configuration
 # =============================================================================

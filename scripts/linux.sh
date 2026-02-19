@@ -85,24 +85,4 @@ else
     echo "✅ Node.js already installed ($(node --version))"
 fi
 
-# Install Sheldon (Zsh plugin manager)
-if ! command -v sheldon &> /dev/null; then
-    echo "📦 Installing Sheldon plugin manager..."
-    if command -v cargo &> /dev/null; then
-        cargo install sheldon
-    else
-        curl --proto '=https' -fLsS https://rosav0.github.io/sheldon/install.sh | bash
-    fi
-else
-    echo "✅ Sheldon already installed"
-fi
-
-# Install Starship prompt
-if ! command -v starship &> /dev/null; then
-    echo "📦 Installing Starship prompt..."
-    curl -sS https://starship.rs/install.sh | sh -s -- -y
-else
-    echo "✅ Starship already installed"
-fi
-
 echo "✅ Linux setup complete"
