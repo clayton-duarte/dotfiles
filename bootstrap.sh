@@ -106,28 +106,27 @@ chmod +x ./scripts/install.sh
 echo ""
 
 # 6. Set zsh as default shell
-echo "🐚 Setting zsh as default shell..."
-
-# Get zsh path (prefer Homebrew zsh on macOS)
-if [[ "$OS" == "macos" ]] && [[ -f /opt/homebrew/bin/zsh ]]; then
-    ZSH_PATH="/opt/homebrew/bin/zsh"
+if [[ "$SHELL" == *"zsh"* ]]; then
+    echo "✅ Zsh is already default shell"
 else
-    ZSH_PATH=$(which zsh)
-fi
+    echo "🐚 Setting zsh as default shell..."
 
-# Check if zsh is in /etc/shells
-if ! grep -q "$ZSH_PATH" /etc/shells 2>/dev/null; then
-    echo "  Adding zsh to /etc/shells (requires sudo)..."
-    echo "$ZSH_PATH" | sudo tee -a /etc/shells
-fi
+    # Get zsh path (prefer Homebrew zsh on macOS)
+    if [[ "$OS" == "macos" ]] && [[ -f /opt/homebrew/bin/zsh ]]; then
+        ZSH_PATH="/opt/homebrew/bin/zsh"
+    else
+        ZSH_PATH=$(which zsh)
+    fi
 
-# Set zsh as default shell
-if [[ "$SHELL" != *"zsh"* ]]; then
+    # Check if zsh is in /etc/shells
+    if ! grep -q "$ZSH_PATH" /etc/shells 2>/dev/null; then
+        echo "  Adding zsh to /etc/shells (requires sudo)..."
+        echo "$ZSH_PATH" | sudo tee -a /etc/shells
+    fi
+
     echo "  Setting zsh as default shell (requires password)..."
     chsh -s "$ZSH_PATH"
     echo "✅ Zsh set as default shell"
-else
-    echo "✅ Zsh is already default shell"
 fi
 
 echo ""
