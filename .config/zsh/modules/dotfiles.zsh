@@ -77,26 +77,8 @@ __dotfiles_sync() {
         timeout_cmd="timeout"
     fi
 
-    # Start animated spinner in background
-    # Uses a co-process approach to avoid job control termination messages
-    local spinner_pid=0
-    local spinner_pidfile=$(mktemp)
-    zsh -c '
-        echo $$ > "'"$spinner_pidfile"'"
-        trap "exit 0" TERM
-        frames=("⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏")
-        while true; do
-            for frame in "${frames[@]}"; do
-                echo -ne "\r\033[K\033[90m${frame}\033[0m "
-                sleep 0.08
-            done
-        done
-    ' &>/dev/tty &
-    disown
-    # Wait briefly for pidfile to be written
-    sleep 0.1
-    spinner_pid=$(<"$spinner_pidfile")
-    rm -f "$spinner_pidfile"
+    # Show sync indicator (no background spinner — avoids Zsh job control noise)
+    echo -ne "\033[90m⟳ Syncing dotfiles...\033[0m"
 
     # Save current directory
     local prev_dir="$PWD"
@@ -110,7 +92,6 @@ __dotfiles_sync() {
         git fetch --quiet 2>/dev/null || fetch_status=$?
     fi
     if [[ $fetch_status -ne 0 ]]; then
-        kill $spinner_pid 2>/dev/null
         cd "$prev_dir"
         if [[ $fetch_status -eq 124 ]]; then
             echo -e "\r\033[K\033[90m⚠️  Dotfiles sync timed out\033[0m"
@@ -136,7 +117,6 @@ __dotfiles_sync() {
 
     if [[ "$local_commit" == "$remote_commit" ]]; then
         # Up to date
-        kill $spinner_pid 2>/dev/null
         echo -e "\r\033[K"
     elif [[ "$local_commit" == "$base_commit" ]]; then
         # Need to pull
@@ -146,7 +126,6 @@ __dotfiles_sync() {
         else
             git pull --quiet --rebase 2>/dev/null || pull_status=$?
         fi
-        kill $spinner_pid 2>/dev/null
         if [[ $pull_status -ne 0 ]]; then
             if [[ $pull_status -eq 124 ]]; then
                 echo -e "\r\033[K\033[90m⚠️  Dotfiles pull timed out\033[0m"
@@ -165,7 +144,6 @@ __dotfiles_sync() {
         else
             git push --quiet 2>/dev/null || push_status=$?
         fi
-        kill $spinner_pid 2>/dev/null
         if [[ $push_status -ne 0 ]]; then
             if [[ $push_status -eq 124 ]]; then
                 echo -e "\r\033[K\033[90m⚠️  Dotfiles push timed out\033[0m"
@@ -178,7 +156,6 @@ __dotfiles_sync() {
         echo -e "\r\033[K"
     else
         # Diverged
-        kill $spinner_pid 2>/dev/null
         echo -e "\r\033[K\033[90m⚠️  Dotfiles diverged\033[0m"
     fi
 
