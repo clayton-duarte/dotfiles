@@ -57,11 +57,21 @@ echo ""
 echo "🔐 Authenticating with 1Password..."
 if ! op whoami &> /dev/null; then
     echo "🔑 Please sign in to 1Password..."
-    eval $(op signin --account my.1password.com) || {
-        echo "❌ Failed to authenticate with 1Password"
-        echo "Please check your credentials and try again"
-        exit 1
-    }
+    if op account list &> /dev/null; then
+        # CLI v2: biometric/system auth handles signin automatically
+        op signin || {
+            echo "❌ Failed to authenticate with 1Password"
+            echo "Please check your credentials and try again"
+            exit 1
+        }
+    else
+        # Fallback: no accounts configured yet
+        op signin || {
+            echo "❌ Failed to authenticate with 1Password"
+            echo "Please check your credentials and try again"
+            exit 1
+        }
+    fi
     # Verify authentication succeeded
     if ! op whoami &> /dev/null; then
         echo "❌ Authentication failed"
@@ -139,9 +149,15 @@ git config --global gpg.format ssh
 git config --global commit.gpgsign true
 git config --global user.signingkey "~/.ssh/id_ed25519"
 
-# Create allowed_signers file for commit verification
+# Create allowed_signers file for commit verification (read pubkey dynamically)
 mkdir -p "$HOME/.ssh"
-echo "cpd@duck.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIzlrKAQzna6inWC0rg3wCXgL0i0MzYHLxzt+s2Zf+wW" > "$HOME/.ssh/allowed_signers"
+if [[ -f "$HOME/.ssh/id_ed25519.pub" ]]; then
+    PUBKEY=$(cat "$HOME/.ssh/id_ed25519.pub")
+    echo "cpd@duck.com ${PUBKEY}" > "$HOME/.ssh/allowed_signers"
+else
+    echo "⚠️  SSH public key not found at ~/.ssh/id_ed25519.pub"
+    echo "   Run 'config secrets' after bootstrap to fetch keys, then re-run bootstrap"
+fi
 git config --global gpg.ssh.allowedSignersFile "~/.ssh/allowed_signers"
 
 echo "  ✓ Git SSH signing configured"

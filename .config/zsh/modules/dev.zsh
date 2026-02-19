@@ -11,11 +11,14 @@ android() {
 }
 
 kill-port() {
-    command lsof -i "tcp:$1" | awk 'NR!=1 {print $2}' | xargs kill
-}
-
-killport() {
-    command sudo fuser -k "$1/tcp"
+    case "$(uname)" in
+        Darwin)
+            command lsof -i "tcp:$1" | awk 'NR!=1 {print $2}' | xargs kill
+            ;;
+        Linux)
+            command fuser -k "$1/tcp"
+            ;;
+    esac
 }
 
 npm() {

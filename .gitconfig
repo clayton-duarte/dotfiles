@@ -1,6 +1,7 @@
 [user]
 	email = cpd@duck.com
 	name = cpd
+	signingkey = ~/.ssh/id_ed25519
 
 [push]
 	autoSetupRemote = true
@@ -25,8 +26,6 @@
 [commit]
 	gpgsign = true
 
-[user]
-	signingkey = ~/.ssh/id_ed25519
 [gpg "ssh"]
 	allowedSignersFile = ~/.ssh/allowed_signers
 [credential "https://github.com"]

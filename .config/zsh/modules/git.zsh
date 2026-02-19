@@ -7,7 +7,7 @@ fetch() {
 }
 
 push() {
-    command git push -f
+    command git push --force-with-lease
 }
 
 list() {
@@ -59,7 +59,7 @@ amend() {
     else
         command git commit --amend -m "$*"
     fi
-    command git push -f
+    command git push --force-with-lease
 }
 
 commit() {
