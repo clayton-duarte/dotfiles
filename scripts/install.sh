@@ -92,7 +92,9 @@ if [[ -f "$DOTFILES_DIR/.ssh/config" ]]; then
 fi
 
 # Link other configs as they're added
-# link .tmux.conf
+if [[ -f "$DOTFILES_DIR/.tmux.conf" ]]; then
+    link .tmux.conf
+fi
 # link .vimrc
 # link .npmrc
 

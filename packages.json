@@ -60,6 +60,12 @@
     "dnf": "docker-compose-plugin",
     "pacman": "docker-compose"
   },
+  "tmux": {
+    "brew": "tmux",
+    "apt": "tmux",
+    "dnf": "tmux",
+    "pacman": "tmux"
+  },
   "coreutils": {
     "brew": "coreutils"
   },
