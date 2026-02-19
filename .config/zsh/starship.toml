@@ -8,6 +8,7 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
 add_newline = true
+command_timeout = 500
 continuation_prompt = "[▸▹ ](dimmed white)"
 
 format = """($nix_shell$container$fill$git_metrics\n)$cmd_duration\

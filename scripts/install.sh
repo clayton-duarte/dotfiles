@@ -16,6 +16,20 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+# Ensure Zsh is installed (needed on remote servers)
+if ! command -v zsh &> /dev/null; then
+    echo "📦 Installing Zsh..."
+    if command -v apt &> /dev/null; then
+        sudo apt update -qq && sudo apt install -yqq zsh
+    elif command -v dnf &> /dev/null; then
+        sudo dnf install -y zsh
+    elif command -v pacman &> /dev/null; then
+        sudo pacman -S --noconfirm zsh
+    else
+        echo -e "${YELLOW}⚠️  Cannot install zsh — unknown package manager${NC}"
+    fi
+fi
+
 # Backup function
 backup_if_exists() {
     if [[ -f "$1" ]] || [[ -d "$1" ]]; then
