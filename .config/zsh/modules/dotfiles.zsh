@@ -48,41 +48,14 @@ config() {
         secrets)
             secrets-refresh
             ;;
-        deploy|-d|d)
-            if [[ -z "$2" ]]; then
-                echo "Usage: config deploy <host>"
-                echo "Deploys dotfiles to a remote host via SSH."
-                echo "Installs Zsh, Starship, Sheldon, and creates symlinks."
-                return 1
-            fi
-            local host="$2"
-            echo "📦 Deploying dotfiles to $host..."
-
-            # Sync dotfiles repo to remote
-            echo "  → Syncing repo..."
-            rsync -az --delete \
-                --exclude '.git' \
-                --exclude 'node_modules' \
-                --exclude '.zsh_history' \
-                --exclude 'secrets.zsh' \
-                --exclude 'sheldon/' \
-                ~/dotfiles/ "$host:~/dotfiles/"
-
-            # Run install script on remote
-            echo "  → Running install script..."
-            command ssh "$host" 'cd ~/dotfiles && bash scripts/install.sh'
-
-            echo "✓ Deployed to $host"
-            ;;
         *)
-            echo "Usage: config [edit|sync|reload|status|install|secrets|deploy]"
+            echo "Usage: config [edit|sync|reload|status|install|secrets]"
             echo "  edit    - Open dotfiles in VS Code"
             echo "  sync    - Manually commit and push changes"
             echo "  reload  - Reload zsh config"
             echo "  status  - Show git status"
             echo "  install - Create symlinks to dotfiles"
             echo "  secrets - Refresh secrets from 1Password"
-            echo "  deploy  - Deploy dotfiles to a remote host"
             ;;
     esac
 }
