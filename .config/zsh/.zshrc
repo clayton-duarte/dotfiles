@@ -87,8 +87,14 @@ __startup() {
     (( __startup_done )) && return
     __startup_done=1
 
-    # Show neofetch if installed (skip in VS Code integrated terminal)
-    if command -v neofetch &>/dev/null && [[ "$TERM_PROGRAM" != "vscode" ]]; then
+    # Skip all startup features in VS Code terminals (cleaner for Copilot agents)
+    if [[ "$TERM_PROGRAM" == "vscode" ]]; then
+        precmd_functions=(${precmd_functions:#__startup})
+        return
+    fi
+
+    # Show neofetch if installed
+    if command -v neofetch &>/dev/null; then
         neofetch
     fi
 
