@@ -15,15 +15,7 @@ fi
 # Oh My Zsh
 # =============================================================================
 export ZSH="${HOME}/.oh-my-zsh"
-
-# Disable fancy theme in dumb terminals or when VS Code runs commands programmatically
-# This fixes terminal output truncation issues with GitHub Copilot
-if [[ "$TERM" == "dumb" ]] || [[ -n "$VSCODE_INJECTION" ]]; then
-    ZSH_THEME=""
-    unsetopt ZLE  # Disable Zsh Line Editor which can interfere with output capture
-else
-    ZSH_THEME="agnoster"
-fi
+ZSH_THEME="agnoster"
 
 # Plugins (bundled with OMZ + custom cloned into $ZSH_CUSTOM/plugins/)
 plugins=(
@@ -95,8 +87,8 @@ __startup() {
     (( __startup_done )) && return
     __startup_done=1
 
-    # Show neofetch if installed
-    if command -v neofetch &>/dev/null; then
+    # Show neofetch if installed (skip in VS Code integrated terminal)
+    if command -v neofetch &>/dev/null && [[ "$TERM_PROGRAM" != "vscode" ]]; then
         neofetch
     fi
 
