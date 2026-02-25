@@ -23,6 +23,12 @@ export ANTHROPIC_VERTEX_PROJECT_ID="team-engineering-dev-wfuk"
 # =============================================================================
 case "$(uname)" in
     Linux)
+        # Load 1Password service account token (persisted by bootstrap.sh)
+        TOKEN_FILE="${HOME}/.config/op/service-account-token"
+        if [[ -z "${OP_SERVICE_ACCOUNT_TOKEN}" && -f "$TOKEN_FILE" ]]; then
+            export OP_SERVICE_ACCOUNT_TOKEN="$(cat "$TOKEN_FILE")"
+        fi
+
         # Set JAVA_HOME for Linux (common paths)
         if [[ -d /usr/lib/jvm/java-17-openjdk-amd64 ]]; then
             export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"

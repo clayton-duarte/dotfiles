@@ -23,6 +23,12 @@ if ! command -v op &> /dev/null; then
     exit 1
 fi
 
+# Load persisted service account token (set by bootstrap.sh on headless servers)
+TOKEN_FILE="${HOME}/.config/op/service-account-token"
+if [[ -z "${OP_SERVICE_ACCOUNT_TOKEN}" && -f "$TOKEN_FILE" ]]; then
+    export OP_SERVICE_ACCOUNT_TOKEN="$(cat "$TOKEN_FILE")"
+fi
+
 # Authenticate — service accounts work automatically via OP_SERVICE_ACCOUNT_TOKEN
 if ! op whoami &> /dev/null; then
     if [[ -n "${OP_SERVICE_ACCOUNT_TOKEN}" ]]; then

@@ -78,14 +78,35 @@ if [[ -n "${OP_SERVICE_ACCOUNT_TOKEN}" ]]; then
         echo "   Check that the token is valid and has access to the required vaults"
         exit 1
     fi
+elif ${HEADLESS}; then
+    # Headless without a token — prompt to set one up
+    echo "🔑 Headless server detected — a Service Account Token is required."
+    echo "   Create one at: https://my.1password.com → Developer → Service Accounts"
+    echo "   Grant it access to the Private vault."
+    echo ""
+    read -rp "   Paste your OP_SERVICE_ACCOUNT_TOKEN: " SA_TOKEN
+    if [[ -z "$SA_TOKEN" ]]; then
+        echo "❌ No token provided"
+        exit 1
+    fi
+    export OP_SERVICE_ACCOUNT_TOKEN="$SA_TOKEN"
+    if op whoami &> /dev/null; then
+        echo "✅ Authenticated via service account"
+        # Persist the token so future runs (and secrets.sh) don't ask again
+        TOKEN_FILE="${HOME}/.config/op/service-account-token"
+        mkdir -p "$(dirname "$TOKEN_FILE")"
+        echo "$SA_TOKEN" > "$TOKEN_FILE"
+        chmod 600 "$TOKEN_FILE"
+        echo "  ✓ Token saved to $TOKEN_FILE"
+    else
+        echo "❌ Authentication failed — check that the token is valid"
+        exit 1
+    fi
 elif ! op whoami &> /dev/null; then
     echo "🔑 Please sign in to 1Password..."
     eval "$(op signin)" || {
         echo "❌ Failed to authenticate with 1Password"
         echo "Please check your credentials and try again"
-        echo ""
-        echo "💡 For headless servers, set OP_SERVICE_ACCOUNT_TOKEN:"
-        echo "   export OP_SERVICE_ACCOUNT_TOKEN=\"ops_...\""
         exit 1
     }
     if ! op whoami &> /dev/null; then
