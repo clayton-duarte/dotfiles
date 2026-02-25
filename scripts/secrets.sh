@@ -111,12 +111,28 @@ SSH_VAULT="$OP_VAULT"
 mkdir -p "$HOME/.ssh"
 chmod 700 "$HOME/.ssh"
 
-if op read "op://${SSH_VAULT}/SSH Key/public key" &> /dev/null; then
-    # Public key — always needed (allowed_signers, git signing, authorized_keys)
+if op read "op://${SSH_VAULT}/SSH Key/private key" &> /dev/null; then
+    # Private key — needed on headless servers (no 1Password agent)
+    op read "op://${SSH_VAULT}/SSH Key/private key" > "$HOME/.ssh/id_ed25519"
+    chmod 600 "$HOME/.ssh/id_ed25519"
+    echo "  ✓ SSH private key"
+
+    # Derive public key from private key (1Password agent-managed keys may have
+    # mismatched "public key" vs "private key" fields in the vault item — deriving
+    # ensures the .pub file always matches the actual private key on disk)
+    ssh-keygen -y -f "$HOME/.ssh/id_ed25519" > "$HOME/.ssh/id_ed25519.pub"
+    chmod 644 "$HOME/.ssh/id_ed25519.pub"
+    echo "  ✓ SSH public key (derived from private key)"
+elif op read "op://${SSH_VAULT}/SSH Key/public key" &> /dev/null; then
+    # Fallback: public key only (agent-managed machines may not expose private key)
     op read "op://${SSH_VAULT}/SSH Key/public key" > "$HOME/.ssh/id_ed25519.pub"
     chmod 644 "$HOME/.ssh/id_ed25519.pub"
-    echo "  ✓ SSH public key"
+    echo "  ✓ SSH public key (from vault)"
+else
+    echo "  ⚠️  'SSH Key' item not found in $SSH_VAULT vault"
+fi
 
+if [[ -f "$HOME/.ssh/id_ed25519.pub" ]]; then
     # allowed_signers for git commit verification
     PUBKEY=$(cat "$HOME/.ssh/id_ed25519.pub")
     echo "cpd@duck.com ${PUBKEY}" > "$HOME/.ssh/allowed_signers"
@@ -128,16 +144,6 @@ if op read "op://${SSH_VAULT}/SSH Key/public key" &> /dev/null; then
         chmod 600 "$HOME/.ssh/authorized_keys"
         echo "  ✓ Added to authorized_keys"
     fi
-
-    # Private key — needed on headless servers (no 1Password agent)
-    # On interactive machines, 1Password agent handles SSH via SSH_AUTH_SOCK
-    if op read "op://${SSH_VAULT}/SSH Key/private key" &> /dev/null; then
-        op read "op://${SSH_VAULT}/SSH Key/private key" > "$HOME/.ssh/id_ed25519"
-        chmod 600 "$HOME/.ssh/id_ed25519"
-        echo "  ✓ SSH private key"
-    fi
-else
-    echo "  ⚠️  'SSH Key' item not found in $SSH_VAULT vault"
 fi
 
 # =============================================================================
