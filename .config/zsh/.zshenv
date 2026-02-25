@@ -23,10 +23,6 @@ export ANTHROPIC_VERTEX_PROJECT_ID="team-engineering-dev-wfuk"
 # =============================================================================
 case "$(uname)" in
     Linux)
-        # 1Password SSH agent (only if socket exists — not available on headless)
-        if [[ -S "${HOME}/.1password/agent.sock" ]]; then
-            export SSH_AUTH_SOCK="${HOME}/.1password/agent.sock"
-        fi
         # Set JAVA_HOME for Linux (common paths)
         if [[ -d /usr/lib/jvm/java-17-openjdk-amd64 ]]; then
             export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
@@ -35,7 +31,6 @@ case "$(uname)" in
         fi
         ;;
     Darwin)
-        export SSH_AUTH_SOCK="${HOME}/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
         # Set JAVA_HOME to Android Studio's bundled JDK
         export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
         ;;

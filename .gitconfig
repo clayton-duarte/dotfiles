@@ -2,7 +2,7 @@
 	email = cpd@duck.com
 	name = cpd
 	# Public key only — not a secret. bootstrap.sh updates this when generating a new key.
-	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJPZF2EcEcJsaza5b7XRkFqBfNZFXKHHba/GYjuGOskC
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILKOe4oZWR3HMGU1yKEgsb3KtO/B3dYlh0MQyEHqCiD6
 
 [push]
 	autoSetupRemote = true
@@ -20,7 +20,7 @@
 [rebase]
 	autoStash = true
 
-# SSH commit signing (program path is platform-specific, bootstrap.sh updates it per-OS)
+# SSH commit signing — key file based, works on all platforms
 [gpg]
 	format = ssh
 
@@ -29,7 +29,6 @@
 
 [gpg "ssh"]
 	allowedSignersFile = ~/.ssh/allowed_signers
-	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
 
 [init]
 	defaultBranch = main

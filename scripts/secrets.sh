@@ -112,22 +112,15 @@ mkdir -p "$HOME/.ssh"
 chmod 700 "$HOME/.ssh"
 
 if op read "op://${SSH_VAULT}/SSH Key/private key" &> /dev/null; then
-    # Private key — needed on headless servers (no 1Password agent)
+    # Private key (OpenSSH format, stored as Secure Note in 1Password)
     op read "op://${SSH_VAULT}/SSH Key/private key" > "$HOME/.ssh/id_ed25519"
     chmod 600 "$HOME/.ssh/id_ed25519"
     echo "  ✓ SSH private key"
 
-    # Derive public key from private key (1Password agent-managed keys may have
-    # mismatched "public key" vs "private key" fields in the vault item — deriving
-    # ensures the .pub file always matches the actual private key on disk)
-    ssh-keygen -y -f "$HOME/.ssh/id_ed25519" > "$HOME/.ssh/id_ed25519.pub"
-    chmod 644 "$HOME/.ssh/id_ed25519.pub"
-    echo "  ✓ SSH public key (derived from private key)"
-elif op read "op://${SSH_VAULT}/SSH Key/public key" &> /dev/null; then
-    # Fallback: public key only (agent-managed machines may not expose private key)
+    # Public key
     op read "op://${SSH_VAULT}/SSH Key/public key" > "$HOME/.ssh/id_ed25519.pub"
     chmod 644 "$HOME/.ssh/id_ed25519.pub"
-    echo "  ✓ SSH public key (from vault)"
+    echo "  ✓ SSH public key"
 else
     echo "  ⚠️  'SSH Key' item not found in $SSH_VAULT vault"
 fi
@@ -152,22 +145,14 @@ fi
 echo ""
 echo "🔏 Configuring git signing..."
 
-if [[ "$(uname)" == "Darwin" ]]; then
-    OP_SSH_SIGN="/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
-else
-    OP_SSH_SIGN="/opt/1Password/op-ssh-sign"
-fi
-
-if [[ -f "$OP_SSH_SIGN" ]]; then
-    git config --global gpg.ssh.program "$OP_SSH_SIGN"
-    if [[ -f "$HOME/.ssh/id_ed25519.pub" ]]; then
-        PUBKEY_CONTENT=$(awk '{print $1" "$2}' "$HOME/.ssh/id_ed25519.pub")
-        git config --global user.signingkey "$PUBKEY_CONTENT"
-    fi
-    echo "  ✓ Git signing via 1Password (biometric)"
-else
-    git config --global user.signingkey "~/.ssh/id_ed25519"
+if [[ -f "$HOME/.ssh/id_ed25519.pub" ]]; then
+    PUBKEY_CONTENT=$(awk '{print $1" "$2}' "$HOME/.ssh/id_ed25519.pub")
+    git config --global user.signingkey "$PUBKEY_CONTENT"
+    # Remove any op-ssh-sign program reference (key-file signing uses ssh-keygen by default)
+    git config --global --unset gpg.ssh.program 2>/dev/null || true
     echo "  ✓ Git signing via SSH key file"
+else
+    echo "  ⚠️  SSH public key not found — git signing not configured"
 fi
 
 # =============================================================================

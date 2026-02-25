@@ -6,8 +6,8 @@
 # Usage: ./bootstrap.sh
 #
 # Supports two modes:
-#   Interactive (macOS/Desktop): biometric auth, 1Password agent, op-ssh-sign
-#   Headless (Linux servers):    OP_SERVICE_ACCOUNT_TOKEN env var, key-file signing
+#   Interactive (macOS/Desktop): biometric auth, 1Password shell plugins
+#   Headless (Linux servers):    OP_SERVICE_ACCOUNT_TOKEN env var
 #
 # Set OP_SERVICE_ACCOUNT_TOKEN before running on headless machines:
 #   export OP_SERVICE_ACCOUNT_TOKEN="ops_..."
@@ -208,30 +208,15 @@ else
     echo "  ⚠️  SSH public key not yet available (secrets.sh will set this up)"
 fi
 
-# Configure 1Password op-ssh-sign for commit signing (platform-specific)
-# On interactive machines: biometric-authenticated signing, no private key needed
-# On headless machines: falls back to key-file signing
-case "$OS" in
-    macos)
-        OP_SSH_SIGN="/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
-        ;;
-    linux)
-        OP_SSH_SIGN="/opt/1Password/op-ssh-sign"
-        ;;
-esac
-
-if [[ -f "$OP_SSH_SIGN" ]]; then
-    git config --global gpg.ssh.program "$OP_SSH_SIGN"
-    # With op-ssh-sign, use public key content as signing key (1Password resolves it)
-    if [[ -f "$HOME/.ssh/id_ed25519.pub" ]]; then
-        PUBKEY_CONTENT=$(awk '{print $1" "$2}' "$HOME/.ssh/id_ed25519.pub")
-        git config --global user.signingkey "$PUBKEY_CONTENT"
-    fi
-    echo "  ✓ Git signing via 1Password op-ssh-sign (biometric)"
+# Configure git SSH signing (key-file based, works on all platforms)
+# No op-ssh-sign needed — standard ssh-keygen handles signing
+if [[ -f "$HOME/.ssh/id_ed25519.pub" ]]; then
+    PUBKEY_CONTENT=$(awk '{print $1" "$2}' "$HOME/.ssh/id_ed25519.pub")
+    git config --global user.signingkey "$PUBKEY_CONTENT"
+    git config --global --unset gpg.ssh.program 2>/dev/null || true
+    echo "  ✓ Git signing via SSH key file"
 else
-    # Headless fallback: sign with key file on disk
-    git config --global user.signingkey "~/.ssh/id_ed25519"
-    echo "  ✓ Git signing via SSH key file (headless fallback)"
+    echo "  ⚠️  SSH public key not yet available (secrets.sh will set this up)"
 fi
 
 # Configure gh credential helper (platform-specific path)
@@ -305,7 +290,6 @@ if ${HEADLESS}; then
     echo ""
     echo "Headless mode notes:"
     echo "  - Persist OP_SERVICE_ACCOUNT_TOKEN in your server's environment"
-    echo "  - Git signing uses key file (~/.ssh/id_ed25519)"
-    echo "  - SSH uses key file (no 1Password agent on headless)"
+    echo "  - Git signing uses SSH key file (~/.ssh/id_ed25519)"
 fi
 echo ""
