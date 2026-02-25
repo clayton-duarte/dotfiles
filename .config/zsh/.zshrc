@@ -29,7 +29,7 @@ fi
 # =============================================================================
 export ZSH="${HOME}/.oh-my-zsh"
 
-ZSH_THEME="zhann"
+ZSH_THEME="agnoster"
 
 # Plugins (bundled with OMZ + custom cloned into $ZSH_CUSTOM/plugins/)
 plugins=(

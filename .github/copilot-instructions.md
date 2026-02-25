@@ -10,7 +10,7 @@ dotfiles/
 ├── packages.json          # Single source of truth for all dependencies
 ├── .config/zsh/
 │   ├── .zshenv            # Environment variables & PATH (also symlinked to ~/.zshenv)
-│   ├── .zshrc             # Main Zsh config entrypoint (Oh My Zsh + zhann)
+│   ├── .zshrc             # Main Zsh config entrypoint (Oh My Zsh + agnoster)
 │   └── modules/
 │       ├── git.zsh        # Git workflow functions
 │       ├── dev.zsh        # Development tool functions
@@ -55,9 +55,9 @@ config reload     # Reload Zsh config
 - Use `ln -sf` for symlinks with backup of existing files
 - Set `chmod 600` on secrets/keys, `chmod 700` on `.ssh/`
 - Linux scripts must detect distro via `/etc/os-release`
-- 1Password agent paths differ by OS—use case statements
+- SSH agent differs by OS: persistent socket on Linux, system default on macOS
 - Plugin management via **Oh My Zsh** (built-in + custom plugins in `$ZSH_CUSTOM`)
-- Prompt via **zhann** theme (minimal, no special font required)
+- Prompt via **agnoster** theme (powerline-style, requires Nerd Font / Powerline font)
 
 ## Security
 
@@ -68,7 +68,6 @@ config reload     # Reload Zsh config
 **Secrets pattern**: All secrets live in the 1Password `Private` vault:
 - `Private/SSH Key` (Secure Note) → `~/.ssh/id_ed25519{,.pub}`
 - `Private/Environment` (Password) → `~/.config/zsh/secrets.zsh` (dynamic fields, incl. GH_TOKEN)
-- Per-project: use `.env.op` files with `op://Private/Environment/FIELD` references
 - Per-project: use `.env.op` files with `op://Private/Environment/FIELD` references
 
 ## Integration Points

@@ -140,43 +140,42 @@ No manual intervention needed for normal workflow!
 
 ### Vault: `Private`
 
-All secrets live in a dedicated `Private` vault. Create it and add these items:
+All secrets live in the default **Private** vault. Two items:
 
-#### 1. SSH Key (type: SSH Key)
-SSH key for GitHub authentication and commit signing:
-- **private key** — OpenSSH format ed25519
+#### 1. SSH Key (type: Secure Note)
+SSH keypair for GitHub authentication and commit signing:
+- **private key** — OpenSSH format ed25519 (generated via `ssh-keygen`, not 1Password)
 - **public key** — Corresponding public key
 
-#### 2. GitHub CLI (type: API Credential)
-Personal Access Token for gh CLI:
-- **credential** — GitHub PAT
-- Get token from: `gh auth token`
-- Or create at: https://github.com/settings/tokens/new
-- Required scopes: `repo`, `read:org`, `gist`, `admin:public_key`
+> **Why Secure Note?** 1Password's SSH Key category exports private keys in PKCS#8 PEM
+> format via `op read`, which is incompatible with OpenSSH. Storing as a Secure Note
+> ensures `op read` returns raw OpenSSH format directly — no conversion needed.
 
-#### 3. Environment (type: Secure Note)
+#### 2. Environment (type: Password)
 Dynamic environment variables — one field per secret:
 - ARTIFACTORY_TOKEN
-- NPM_TOKEN
+- SARDINE_NPM_TOKEN
 - FONT_AWESOME_TOKEN
+- NPM_TOKEN
+- GEMINI_API_KEY
+- GH_TOKEN (used for headless GitHub CLI auth)
 - (Add more as fields — they're auto-discovered!)
 
 ### Setup Commands
 ```bash
-# Create vault
-op vault create dotfiles
+# Generate SSH key locally
+ssh-keygen -t ed25519 -C "your@email.com"
 
-# Add SSH key
-op item create --vault dotfiles --category 'SSH Key' --title 'SSH Key'
-
-# Add GitHub CLI token
-op item create --vault dotfiles --category 'API Credential' --title 'GitHub CLI' \
-  'credential=ghp_your_token_here'
+# Store SSH key in 1Password as Secure Note
+op item create --vault Private --category 'Secure Note' --title 'SSH Key' \
+  "private key=$(cat ~/.ssh/id_ed25519)" \
+  "public key=$(cat ~/.ssh/id_ed25519.pub)"
 
 # Add environment secrets
-op item create --vault dotfiles --category 'Secure Note' --title 'Environment' \
+op item create --vault Private --category 'Password' --title 'Environment' \
   'ARTIFACTORY_TOKEN=your_token' \
-  'NPM_TOKEN=your_token'
+  'NPM_TOKEN=your_token' \
+  'GH_TOKEN=your_github_token'
 ```
 
 ### Dynamic Secret Discovery
@@ -186,7 +185,7 @@ op item create --vault dotfiles --category 'Secure Note' --title 'Environment' \
 The secrets script automatically fetches ALL fields from the "Environment" item. Just add a new field in 1Password, and it's available on your next terminal open.
 
 ```bash
-# Add OPENAI_API_KEY as a field in dotfiles/Environment
+# Add OPENAI_API_KEY as a field in Private/Environment
 # Open new terminal → automatically loaded!
 echo $OPENAI_API_KEY  # Works immediately
 ```
@@ -219,10 +218,10 @@ secrets-refresh    # Direct function call
 ```
 
 This will:
-- Re-authenticate with 1Password if needed
-- Fetch all env vars from `dotfiles/Environment`
+- Re-authenticate with 1Password if needed (interactive `op signin`)
+- Fetch all env vars from `Private/Environment`
 - Fetch SSH keys from `Private/SSH Key`
-- Authenticate GitHub CLI from `dotfiles/GitHub CLI`
+- Authenticate GitHub CLI via GH_TOKEN from `Private/Environment`
 - Update `~/.config/zsh/secrets.zsh`
 
 ## Config Management
@@ -283,7 +282,11 @@ config status   # Show git status
 
 SSH configuration is managed in `.ssh/config` with all hosts pre-configured.
 
-All connections use 1Password SSH agent automatically via `SSH_AUTH_SOCK`.
+SSH uses a standard ssh-agent (not 1Password SSH agent):
+- **macOS**: System default ssh-agent (Keychain integration)
+- **Linux**: Persistent agent via `~/.ssh/agent.sock` (set in `.zshenv`)
+
+The SSH key is loaded into the agent automatically on shell startup.
 
 ### SSH Functions
 
@@ -296,12 +299,12 @@ ssh test    # Test GitHub SSH connection
 
 ### macOS
 - Uses Homebrew for package management
-- 1Password agent: `~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock`
+- System default ssh-agent (Keychain integration)
 - Latest Zsh installed via Homebrew (macOS ships with older version)
 
 ### Linux
 - Uses apt/dnf/pacman depending on distro
-- 1Password agent: `~/.1password/agent.sock`
+- Persistent ssh-agent via `~/.ssh/agent.sock` (set in `.zshenv`)
 - Oh My Zsh + plugins installed via git clone
 
 ## Security
@@ -311,9 +314,12 @@ ssh test    # Test GitHub SSH connection
 - All secrets stored in the `Private` vault in 1Password, never in git
 - `secrets.zsh` is auto-generated and gitignored
 - SSH keys are fetched from 1Password, never committed
-- GitHub CLI auth via 1Password shell plugin or token from vault
+- GitHub CLI auth via 1Password shell plugin (interactive) or GH_TOKEN from vault (headless)
+- Git credential helper uses path-independent `!gh` (works on both macOS and Linux)
+- Git signing uses key-file based SSH signing (no `op-ssh-sign`, no 1Password SSH agent)
 - `.gitignore` prevents accidental secret commits
-- Headless servers require interactive `op signin` (one-time, secrets persist on disk)
+- All machines use interactive `op signin` (one-time, secrets persist on disk)
+- Service accounts are **not used** (can't access Personal/Private vault)
 
 **Never commit:**
 - `~/.config/zsh/secrets.zsh`

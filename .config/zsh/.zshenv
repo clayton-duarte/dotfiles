@@ -40,7 +40,9 @@ case "$(uname)" in
     Darwin)
         # Set JAVA_HOME to Android Studio's bundled JDK
         export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
-        # macOS ssh-agent with Keychain integration (system default)
+        # Override 1Password SSH agent — use macOS system agent instead
+        # (1Password agent only serves SSH_KEY category items, not our Secure Note key)
+        export SSH_AUTH_SOCK="$(launchctl getenv SSH_AUTH_SOCK 2>/dev/null)"
         ;;
     *)
         echo "⚠️  Unsupported OS"

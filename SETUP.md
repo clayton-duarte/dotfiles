@@ -13,10 +13,22 @@ All secrets live in the default Private vault:
 | SSH Key | Secure Note | private key, public key | `op://Private/SSH Key/{field}` |
 | Environment | Password | one field per env var (incl. GH_TOKEN) | `op://Private/Environment/{FIELD}` |
 
+> **Why Secure Note for SSH Key?** 1Password's SSH Key category exports private keys
+> in PKCS#8 PEM format via `op read`, which is incompatible with OpenSSH. Storing as
+> a Secure Note ensures `op read` returns raw OpenSSH format directly.
+
+### Authentication
+- Interactive `op signin` only (no service accounts — they can't access Personal/Private vault)
+- After first signin, secrets persist on disk and don't require re-auth until refreshed
+
 ### Secrets Loaded
-From the "Environment" Secure Note (all fields auto-discovered):
+From the "Environment" item (all fields auto-discovered):
 - `ARTIFACTORY_TOKEN`
+- `SARDINE_NPM_TOKEN`
+- `FONT_AWESOME_TOKEN`
 - `NPM_TOKEN`
+- `GEMINI_API_KEY`
+- `GH_TOKEN` (used for headless GitHub CLI auth)
 - **Any new fields you add** (no code changes needed!)
 
 ### SSH Keys
@@ -50,28 +62,33 @@ user.name = cpd
 ```
 gpg.format = ssh
 commit.gpgsign = true
-user.signingkey = ~/.ssh/id_ed25519
+user.signingkey = ssh-ed25519 AAAAC3...
+gpg.ssh.allowedSignersFile = ~/.ssh/allowed_signers
 ```
 
-Commits are automatically signed using your SSH key.
+Commits are automatically signed using your SSH key (key-file based, no `op-ssh-sign`).
+The signing key in `.gitconfig` is the public key string — `bootstrap.sh` updates it.
 
 ### Other Settings
 - Auto-setup remote on push
 - Rebase on pull
 - Auto-stash on rebase
-- VS Code as editor
+- VS Code as editor (headless: vim)
+- Credential helper: `!gh auth git-credential` (path-independent, works on all platforms)
+- No merge fast-forward (explicit merge commits)
 
 ## SSH Configuration
 
-All SSH connections use 1Password agent automatically via `SSH_AUTH_SOCK`.
+SSH uses a standard ssh-agent (not 1Password SSH agent):
+- **macOS**: System default ssh-agent (Keychain integration)
+- **Linux**: Persistent agent via `~/.ssh/agent.sock` (set in `.zshenv`)
 
-### 1Password SSH Agent Path
-```
-macOS: ~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock
-Linux: ~/.1password/agent.sock
-```
+The SSH key is loaded into the agent automatically on shell startup (in `.zshrc`).
 
-Set in `.config/zsh/.zshenv` and exported as `SSH_AUTH_SOCK`.
+### SSH Key
+- Generated via `ssh-keygen -t ed25519`
+- Stored in 1Password as a **Secure Note** (not SSH Key category) so `op read` returns raw OpenSSH format
+- Deployed to `~/.ssh/id_ed25519` and `~/.ssh/id_ed25519.pub` by `secrets.sh`
 
 ## Zsh Shell Configuration
 
@@ -86,11 +103,12 @@ Modular config split across focused files:
 - `modules/dotfiles.zsh` — Dotfiles management & auto-sync
 
 ### Plugin Stack
-- **Oh My Zsh** — Framework with agnoster theme
+- **Oh My Zsh** — Framework with agnoster theme (powerline-style, requires Nerd Font)
 - **zsh-autosuggestions** — Fish-like inline suggestions (custom plugin)
 - **zsh-syntax-highlighting** — Fish-like command coloring (custom plugin)
 - **history-substring-search** — Fish-like history search with arrow keys (OMZ bundled)
 - **git** — Git aliases and functions (OMZ bundled)
+- **1Password Shell Plugins** — `gh` (and others) authenticate via `~/.config/op/plugins.sh`
 
 ### Auto-Sync Behavior
 Every time you open a new terminal:
@@ -103,7 +121,7 @@ Every time you open a new terminal:
 ```zsh
 ANDROID_HOME=$HOME/Library/Android/sdk
 BASE_BRANCH=main
-SSH_AUTH_SOCK=<1Password agent path>
+# SSH_AUTH_SOCK — Linux: ~/.ssh/agent.sock, macOS: system default
 ```
 
 Plus secrets from `~/.config/zsh/secrets.zsh`.
