@@ -199,20 +199,12 @@ else
     echo "  ⚠️  SSH public key not yet available (secrets.sh will set this up)"
 fi
 
-# Configure gh credential helper (platform-specific path)
+# Configure gh credential helper (path-independent, works on all platforms)
 if command -v gh &> /dev/null; then
-    case "$OS" in
-        macos)
-            GH_PATH="/opt/homebrew/bin/gh"
-            ;;
-        linux)
-            GH_PATH=$(which gh)
-            ;;
-    esac
     git config --global credential.https://github.com.helper ""
-    git config --global credential.https://github.com.helper "!${GH_PATH} auth git-credential"
+    git config --global credential.https://github.com.helper "!gh auth git-credential"
     git config --global credential.https://gist.github.com.helper ""
-    git config --global credential.https://gist.github.com.helper "!${GH_PATH} auth git-credential"
+    git config --global credential.https://gist.github.com.helper "!gh auth git-credential"
     echo "  ✓ Git credential helper configured for GitHub CLI"
 fi
 
