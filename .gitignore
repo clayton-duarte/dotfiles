@@ -24,7 +24,6 @@ secrets.zsh
 
 # 1Password items
 .op/
-service-account-token
 
 # API credentials (actual files with secrets, not scripts)
 *token.txt

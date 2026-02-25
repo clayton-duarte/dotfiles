@@ -5,7 +5,7 @@
 # Fetches secrets from the Private vault in 1Password.
 # Run via: config secrets (or ./scripts/secrets.sh directly)
 #
-# On headless servers, set OP_SERVICE_ACCOUNT_TOKEN for non-interactive auth.
+# Requires interactive signin (op signin). After fetching, secrets persist on disk.
 #
 # Items (all in Private vault):
 #   SSH Key      — private key, public key
@@ -23,19 +23,8 @@ if ! command -v op &> /dev/null; then
     exit 1
 fi
 
-# Load persisted service account token (set by bootstrap.sh on headless servers)
-TOKEN_FILE="${HOME}/.config/op/service-account-token"
-if [[ -z "${OP_SERVICE_ACCOUNT_TOKEN}" && -f "$TOKEN_FILE" ]]; then
-    export OP_SERVICE_ACCOUNT_TOKEN="$(cat "$TOKEN_FILE")"
-fi
-
-# Authenticate — service accounts work automatically via OP_SERVICE_ACCOUNT_TOKEN
+# Authenticate with 1Password
 if ! op whoami &> /dev/null; then
-    if [[ -n "${OP_SERVICE_ACCOUNT_TOKEN}" ]]; then
-        echo "❌ OP_SERVICE_ACCOUNT_TOKEN is set but authentication failed"
-        echo "   Check that the token is valid and has access to the $OP_VAULT vault"
-        exit 1
-    fi
     echo "🔑 Please sign in to 1Password..."
     eval "$(op signin)" || {
         echo "❌ Failed to authenticate with 1Password"

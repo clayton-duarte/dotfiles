@@ -75,9 +75,7 @@ config reload     # Reload Zsh config
 
 - **1Password CLI**: All secrets from `Private` vault via `op read op://Private/...`
 - **1Password Shell Plugins**: `gh` (and others) authenticate via `~/.config/op/plugins.sh`
-- **1Password op-ssh-sign**: Biometric commit signing on interactive machines
-- **SSH agent**: 1Password agent via `SSH_AUTH_SOCK` (set in .zshenv)
-- **Git SSH signing**: Configured in [.gitconfig](.gitconfig), signing program set by bootstrap
-- **GitHub CLI**: Shell plugin (interactive) or token from vault (headless)
-- **Service accounts**: Set `OP_SERVICE_ACCOUNT_TOKEN` for headless Linux servers
+- **SSH agent**: Standard ssh-agent (persistent on Linux via socket file, system default on macOS)
+- **Git SSH signing**: Key-file based, works on all platforms (configured in .gitconfig)
+- **GitHub CLI**: Shell plugin (interactive) or GH_TOKEN from vault (headless)
 - **Environment injection**: `op-env` function uses `op run --env-file` with `op://` references

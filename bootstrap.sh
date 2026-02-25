@@ -5,13 +5,8 @@
 # Prerequisite: git and 1Password must be installed
 # Usage: ./bootstrap.sh
 #
-# Supports two modes:
-#   Interactive (macOS/Desktop): biometric auth, 1Password shell plugins
-#   Headless (Linux servers):    OP_SERVICE_ACCOUNT_TOKEN env var
-#
-# Set OP_SERVICE_ACCOUNT_TOKEN before running on headless machines:
-#   export OP_SERVICE_ACCOUNT_TOKEN="ops_..."
-#   ./bootstrap.sh
+# Requires interactive 1Password signin (password prompt on first run).
+# After running, secrets persist on disk — no 1Password needed for daily use.
 
 set -e
 
@@ -69,40 +64,7 @@ echo ""
 
 # 2. Authenticate with 1Password
 echo "🔐 Authenticating with 1Password..."
-if [[ -n "${OP_SERVICE_ACCOUNT_TOKEN}" ]]; then
-    # Service account mode (headless servers)
-    if op whoami &> /dev/null; then
-        echo "✅ Authenticated via service account"
-    else
-        echo "❌ OP_SERVICE_ACCOUNT_TOKEN is set but authentication failed"
-        echo "   Check that the token is valid and has access to the required vaults"
-        exit 1
-    fi
-elif ${HEADLESS}; then
-    # Headless without a token — prompt to set one up
-    echo "🔑 Headless server detected — a Service Account Token is required."
-    echo "   Create one at: https://my.1password.com → Developer → Service Accounts"
-    echo "   Grant it access to the Private vault."
-    echo ""
-    read -rp "   Paste your OP_SERVICE_ACCOUNT_TOKEN: " SA_TOKEN
-    if [[ -z "$SA_TOKEN" ]]; then
-        echo "❌ No token provided"
-        exit 1
-    fi
-    export OP_SERVICE_ACCOUNT_TOKEN="$SA_TOKEN"
-    if op whoami &> /dev/null; then
-        echo "✅ Authenticated via service account"
-        # Persist the token so future runs (and secrets.sh) don't ask again
-        TOKEN_FILE="${HOME}/.config/op/service-account-token"
-        mkdir -p "$(dirname "$TOKEN_FILE")"
-        echo "$SA_TOKEN" > "$TOKEN_FILE"
-        chmod 600 "$TOKEN_FILE"
-        echo "  ✓ Token saved to $TOKEN_FILE"
-    else
-        echo "❌ Authentication failed — check that the token is valid"
-        exit 1
-    fi
-elif ! op whoami &> /dev/null; then
+if ! op whoami &> /dev/null; then
     echo "🔑 Please sign in to 1Password..."
     eval "$(op signin)" || {
         echo "❌ Failed to authenticate with 1Password"
@@ -147,9 +109,6 @@ else
     echo "     op item create --vault $OP_VAULT --category 'Secure Note' --title 'Environment' \\"
     echo "       'STRIPE_KEY=sk_live_...' \\"
     echo "       'DATABASE_URL=postgres://...'"
-    echo ""
-    echo "  For service accounts (headless servers):"
-    echo "     Grant the service account read access to the $OP_VAULT vault"
     echo ""
     exit 1
 fi
@@ -307,10 +266,4 @@ echo "  1. Restart your terminal (exec zsh)"
 echo "  2. Your config will auto-sync on terminal startup"
 echo "  3. Use 'config edit' to edit configs"
 echo "  4. Use 'op-env' in projects with op://Private/... references"
-if ${HEADLESS}; then
-    echo ""
-    echo "Headless mode notes:"
-    echo "  - Persist OP_SERVICE_ACCOUNT_TOKEN in your server's environment"
-    echo "  - Git signing uses SSH key file (~/.ssh/id_ed25519)"
-fi
 echo ""

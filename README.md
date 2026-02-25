@@ -179,14 +179,6 @@ op item create --vault dotfiles --category 'Secure Note' --title 'Environment' \
   'NPM_TOKEN=your_token'
 ```
 
-### For Headless Servers (Service Accounts)
-```bash
-# Create a service account with read access to the Private vault
-# Then on the server:
-export OP_SERVICE_ACCOUNT_TOKEN="ops_..."
-./bootstrap.sh
-```
-
 ### Dynamic Secret Discovery
 
 **No code changes needed when adding secrets!**
@@ -321,7 +313,7 @@ ssh test    # Test GitHub SSH connection
 - SSH keys are fetched from 1Password, never committed
 - GitHub CLI auth via 1Password shell plugin or token from vault
 - `.gitignore` prevents accidental secret commits
-- Headless servers use `OP_SERVICE_ACCOUNT_TOKEN` for non-interactive access
+- Headless servers require interactive `op signin` (one-time, secrets persist on disk)
 
 **Never commit:**
 - `~/.config/zsh/secrets.zsh`
