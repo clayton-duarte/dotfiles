@@ -1,7 +1,8 @@
 [user]
 	email = cpd@duck.com
 	name = cpd
-	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJfW9sXv6Shm1s9sMDZtUN51InfP4oclRwZnrIKKeRdb
+	# Public key only — not a secret. bootstrap.sh updates this when generating a new key.
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJPZF2EcEcJsaza5b7XRkFqBfNZFXKHHba/GYjuGOskC
 
 [push]
 	autoSetupRemote = true
@@ -19,7 +20,7 @@
 [rebase]
 	autoStash = true
 
-# SSH commit signing (op-ssh-sign program set by bootstrap.sh per-platform)
+# SSH commit signing (program path is platform-specific, bootstrap.sh updates it per-OS)
 [gpg]
 	format = ssh
 
