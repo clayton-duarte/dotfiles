@@ -23,7 +23,10 @@ export ANTHROPIC_VERTEX_PROJECT_ID="team-engineering-dev-wfuk"
 # =============================================================================
 case "$(uname)" in
     Linux)
-        export SSH_AUTH_SOCK="${HOME}/.1password/agent.sock"
+        # 1Password SSH agent (only if socket exists — not available on headless)
+        if [[ -S "${HOME}/.1password/agent.sock" ]]; then
+            export SSH_AUTH_SOCK="${HOME}/.1password/agent.sock"
+        fi
         # Set JAVA_HOME for Linux (common paths)
         if [[ -d /usr/lib/jvm/java-17-openjdk-amd64 ]]; then
             export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"

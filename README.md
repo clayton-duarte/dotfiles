@@ -138,38 +138,79 @@ No manual intervention needed for normal workflow!
 
 ## 1Password Setup
 
-### Required Items
+### Vault: `Private`
 
-Create these items in your **Private** vault:
+All secrets live in a dedicated `Private` vault. Create it and add these items:
 
-#### 1. Development API Tokens (type: Password)
-Environment variables for development tools:
-- ARTIFACTORY_TOKEN
-- NPM_TOKEN
-- FONT_AWESOME_TOKEN
-- (Add more as needed - they're auto-discovered!)
+#### 1. SSH Key (type: SSH Key)
+SSH key for GitHub authentication and commit signing:
+- **private key** — OpenSSH format ed25519
+- **public key** — Corresponding public key
 
-#### 2. GH SSH Key (type: Secure Note)
-SSH key for GitHub authentication:
-- **private key** - OpenSSH format (from `ssh-keygen -t ed25519`)
-- **public key** - Corresponding public key
-
-#### 3. GitHub CLI Token (type: Password)
+#### 2. GitHub CLI (type: API Credential)
 Personal Access Token for gh CLI:
+- **credential** — GitHub PAT
 - Get token from: `gh auth token`
 - Or create at: https://github.com/settings/tokens/new
 - Required scopes: `repo`, `read:org`, `gist`, `admin:public_key`
 
-### Dynamic Token Discovery
+#### 3. Environment (type: Secure Note)
+Dynamic environment variables — one field per secret:
+- ARTIFACTORY_TOKEN
+- NPM_TOKEN
+- FONT_AWESOME_TOKEN
+- (Add more as fields — they're auto-discovered!)
 
-**No code changes needed when adding tokens!**
+### Setup Commands
+```bash
+# Create vault
+op vault create dotfiles
 
-The secrets script automatically fetches ALL fields from "Development API Tokens". Just add a new field in 1Password, and it's available on your next terminal open.
+# Add SSH key
+op item create --vault dotfiles --category 'SSH Key' --title 'SSH Key'
+
+# Add GitHub CLI token
+op item create --vault dotfiles --category 'API Credential' --title 'GitHub CLI' \
+  'credential=ghp_your_token_here'
+
+# Add environment secrets
+op item create --vault dotfiles --category 'Secure Note' --title 'Environment' \
+  'ARTIFACTORY_TOKEN=your_token' \
+  'NPM_TOKEN=your_token'
+```
+
+### For Headless Servers (Service Accounts)
+```bash
+# Create a service account with read access to the Private vault
+# Then on the server:
+export OP_SERVICE_ACCOUNT_TOKEN="ops_..."
+./bootstrap.sh
+```
+
+### Dynamic Secret Discovery
+
+**No code changes needed when adding secrets!**
+
+The secrets script automatically fetches ALL fields from the "Environment" item. Just add a new field in 1Password, and it's available on your next terminal open.
 
 ```bash
-# Add OPENAI_API_KEY to 1Password item
+# Add OPENAI_API_KEY as a field in dotfiles/Environment
 # Open new terminal → automatically loaded!
 echo $OPENAI_API_KEY  # Works immediately
+```
+
+### Per-Project Environments (op-env)
+
+For project-specific secrets, create a `.env.op` file with `op://` references:
+```bash
+# .env.op (safe to commit — contains references, not values)
+DATABASE_URL=op://Private/Environment/DATABASE_URL
+STRIPE_KEY=op://Private/Environment/STRIPE_KEY
+```
+
+```bash
+op-env npm start       # Secrets injected at runtime, never on disk
+op-env .env.staging    # Use a different env file
 ```
 
 ### Refreshing Secrets
@@ -187,9 +228,9 @@ secrets-refresh    # Direct function call
 
 This will:
 - Re-authenticate with 1Password if needed
-- Fetch all tokens from "Development API Tokens"
-- Fetch SSH keys from "GH SSH Key"
-- Authenticate GitHub CLI
+- Fetch all env vars from `dotfiles/Environment`
+- Fetch SSH keys from `Private/SSH Key`
+- Authenticate GitHub CLI from `dotfiles/GitHub CLI`
 - Update `~/.config/zsh/secrets.zsh`
 
 ## Config Management
@@ -275,15 +316,16 @@ ssh test    # Test GitHub SSH connection
 
 **CRITICAL:** This repo contains references to secrets via 1Password CLI.
 
-- All secrets stored in 1Password, not in git
+- All secrets stored in the `Private` vault in 1Password, never in git
 - `secrets.zsh` is auto-generated and gitignored
 - SSH keys are fetched from 1Password, never committed
-- GitHub CLI token in 1Password, never in environment (unless needed)
+- GitHub CLI auth via 1Password shell plugin or token from vault
 - `.gitignore` prevents accidental secret commits
+- Headless servers use `OP_SERVICE_ACCOUNT_TOKEN` for non-interactive access
 
 **Never commit:**
 - `~/.config/zsh/secrets.zsh`
-- `.env` files
+- `.env` files (`.env.op` with `op://` references are safe)
 - SSH private keys
 - API tokens / PATs
 
@@ -299,7 +341,7 @@ brew "your-package"
 
 ### Adding Secrets
 
-1. Store in 1Password "Development API Tokens" item
+1. Add a field to the "Environment" item in the `Private` vault
 2. Open new terminal → automatically loaded!
 
 ### Adding Zsh Functions

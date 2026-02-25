@@ -12,10 +12,19 @@ if [[ -f "${ZDOTDIR}/secrets.zsh" ]]; then
 fi
 
 # =============================================================================
+# 1Password Shell Plugins (auto-injects credentials for gh, aws, etc.)
+# =============================================================================
+# Setup: op plugin init gh (or aws, etc.) — see https://developer.1password.com/docs/cli/shell-plugins
+if [[ -f "${HOME}/.config/op/plugins.sh" ]]; then
+    source "${HOME}/.config/op/plugins.sh"
+fi
+
+# =============================================================================
 # Oh My Zsh
 # =============================================================================
 export ZSH="${HOME}/.oh-my-zsh"
-ZSH_THEME="agnoster"
+
+ZSH_THEME="zhann"
 
 # Plugins (bundled with OMZ + custom cloned into $ZSH_CUSTOM/plugins/)
 plugins=(
@@ -30,9 +39,7 @@ if [[ -f "${ZSH}/oh-my-zsh.sh" ]]; then
     source "${ZSH}/oh-my-zsh.sh"
 fi
 
-# Override agnoster's context segment (moves user@host to right prompt)
-prompt_context() {}
-RPROMPT='%F{240}%f%K{240}%F{white} %n@%m %f%k'
+
 
 # =============================================================================
 # Zsh Options (supplement OMZ defaults)

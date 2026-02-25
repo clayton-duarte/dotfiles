@@ -4,17 +4,24 @@ This document shows what's configured in your dotfiles.
 
 ## 1Password Integration
 
-### Secrets Configured
-All secrets are **dynamically fetched** from your personal 1Password account (`my.1password.com`, Private vault):
+### Vault: `Private`
 
-From "Development API Tokens" item (ALL fields auto-discovered):
+All secrets live in the default Private vault:
+
+| Item | Type | Fields | `op://` reference |
+|---|---|---|---|
+| SSH Key | Secure Note | private key, public key | `op://Private/SSH Key/{field}` |
+| Environment | Password | one field per env var (incl. GH_TOKEN) | `op://Private/Environment/{FIELD}` |
+
+### Secrets Loaded
+From the "Environment" Secure Note (all fields auto-discovered):
 - `ARTIFACTORY_TOKEN`
 - `NPM_TOKEN`
-- **Any new tokens you add** (no code changes needed!)
+- **Any new fields you add** (no code changes needed!)
 
-### SSH Keys Configured
-- `GH SSH Key` → `~/.ssh/id_ed25519` (private key)
-- `GH SSH Key` → `~/.ssh/id_ed25519.pub` (public key)
+### SSH Keys
+- `SSH Key` → `~/.ssh/id_ed25519` (private key)
+- `SSH Key` → `~/.ssh/id_ed25519.pub` (public key)
 
 ### How Secrets Are Loaded
 
@@ -23,9 +30,13 @@ From "Development API Tokens" item (ALL fields auto-discovered):
 - Refresh with `config secrets` or `secrets-refresh`
 
 **Adding new secrets:**
-1. Add field to "Development API Tokens" in 1Password
+1. Add a field to the "Environment" item in the `Private` vault
 2. Open new terminal → automatically loaded!
 3. No code changes or commits needed
+
+**Per-project secrets (never written to disk):**
+1. Create a `.env.op` file with `op://Private/Environment/FIELD` references
+2. Run `op-env npm start` → secrets injected at runtime
 
 ## Git Configuration
 
@@ -230,7 +241,7 @@ exec zsh
 ### Secrets Not Loading
 ```bash
 op account list
-eval $(op signin --account my.1password.com)
+eval "$(op signin)"
 ```
 
 ```zsh

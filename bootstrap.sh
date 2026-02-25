@@ -4,6 +4,14 @@
 # =============================================================================
 # Prerequisite: git and 1Password must be installed
 # Usage: ./bootstrap.sh
+#
+# Supports two modes:
+#   Interactive (macOS/Desktop): biometric auth, 1Password agent, op-ssh-sign
+#   Headless (Linux servers):    OP_SERVICE_ACCOUNT_TOKEN env var, key-file signing
+#
+# Set OP_SERVICE_ACCOUNT_TOKEN before running on headless machines:
+#   export OP_SERVICE_ACCOUNT_TOKEN="ops_..."
+#   ./bootstrap.sh
 
 set -e
 
@@ -20,7 +28,13 @@ else
     exit 1
 fi
 
-echo "📍 Detected OS: $OS"
+# Detect if running headless (no display + Linux)
+HEADLESS=false
+if [[ "$OS" == "linux" ]] && [[ -z "${DISPLAY}" ]] && [[ -z "${WAYLAND_DISPLAY}" ]]; then
+    HEADLESS=true
+fi
+
+echo "📍 Detected OS: $OS$(${HEADLESS} && echo ' (headless)')"
 echo ""
 
 # 1. Install 1Password CLI if needed
@@ -55,23 +69,25 @@ echo ""
 
 # 2. Authenticate with 1Password
 echo "🔐 Authenticating with 1Password..."
-if ! op whoami &> /dev/null; then
-    echo "🔑 Please sign in to 1Password..."
-    if op account list &> /dev/null; then
-        eval "$(op signin)" || {
-            echo "❌ Failed to authenticate with 1Password"
-            echo "Please check your credentials and try again"
-            exit 1
-        }
+if [[ -n "${OP_SERVICE_ACCOUNT_TOKEN}" ]]; then
+    # Service account mode (headless servers)
+    if op whoami &> /dev/null; then
+        echo "✅ Authenticated via service account"
     else
-        # No accounts configured yet — interactive setup
-        eval "$(op signin)" || {
-            echo "❌ Failed to authenticate with 1Password"
-            echo "Please check your credentials and try again"
-            exit 1
-        }
+        echo "❌ OP_SERVICE_ACCOUNT_TOKEN is set but authentication failed"
+        echo "   Check that the token is valid and has access to the required vaults"
+        exit 1
     fi
-    # Verify authentication succeeded
+elif ! op whoami &> /dev/null; then
+    echo "🔑 Please sign in to 1Password..."
+    eval "$(op signin)" || {
+        echo "❌ Failed to authenticate with 1Password"
+        echo "Please check your credentials and try again"
+        echo ""
+        echo "💡 For headless servers, set OP_SERVICE_ACCOUNT_TOKEN:"
+        echo "   export OP_SERVICE_ACCOUNT_TOKEN=\"ops_...\""
+        exit 1
+    }
     if ! op whoami &> /dev/null; then
         echo "❌ Authentication failed"
         exit 1
@@ -83,28 +99,64 @@ fi
 
 echo ""
 
-# 3. Install essential tools for the OS
+# Define the vault name (single source of truth)
+OP_VAULT="Private"
+
+# 3. Verify the Private vault exists
+echo "🗄️  Checking 1Password vault..."
+if op vault get "$OP_VAULT" &> /dev/null; then
+    echo "✅ Vault '$OP_VAULT' found"
+else
+    echo "❌ Vault '$OP_VAULT' not found in 1Password"
+    echo ""
+    echo "Create it and add these items:"
+    echo ""
+    echo "  1. op vault create $OP_VAULT"
+    echo ""
+    echo "  2. SSH Key (SSH Key type):"
+    echo "     op item create --vault $OP_VAULT --category 'SSH Key' --title 'SSH Key' \\"
+    echo "       --ssh-key 'private key'=\$(cat ~/.ssh/id_ed25519) \\"
+    echo "       'public key'=\$(cat ~/.ssh/id_ed25519.pub)"
+    echo ""
+    echo "  3. GitHub CLI (API Credential type):"
+    echo "     op item create --vault $OP_VAULT --category 'API Credential' --title 'GitHub CLI' \\"
+    echo "       'credential=ghp_your_token_here'"
+    echo ""
+    echo "  4. Environment (Secure Note with env var fields):"
+    echo "     op item create --vault $OP_VAULT --category 'Secure Note' --title 'Environment' \\"
+    echo "       'STRIPE_KEY=sk_live_...' \\"
+    echo "       'DATABASE_URL=postgres://...'"
+    echo ""
+    echo "  For service accounts (headless servers):"
+    echo "     Grant the service account read access to the $OP_VAULT vault"
+    echo ""
+    exit 1
+fi
+
+echo ""
+
+# 4. Install essential tools for the OS
 echo "📦 Installing essential tools..."
 chmod +x ./scripts/${OS}.sh
 ./scripts/${OS}.sh
 
 echo ""
 
-# 4. Pull secrets from 1Password
+# 5. Pull secrets from 1Password
 echo "🔑 Fetching secrets from 1Password..."
 # Source instead of execute to preserve 1Password session
 source ./scripts/secrets.sh
 
 echo ""
 
-# 5. Symlink dotfiles
+# 6. Symlink dotfiles
 echo "🔗 Symlinking dotfiles..."
 chmod +x ./scripts/install.sh
 ./scripts/install.sh
 
 echo ""
 
-# 6. Set zsh as default shell
+# 7. Set zsh as default shell
 if [[ "$SHELL" == *"zsh"* ]]; then
     echo "✅ Zsh is already default shell"
 else
@@ -130,40 +182,104 @@ fi
 
 echo ""
 
-# 7. Configure git
+# 8. Configure git
 echo "👤 Configuring git..."
 git config --global user.email "cpd@duck.com"
 git config --global user.name "cpd"
 git config --global push.autoSetupRemote true
 git config --global push.useForceIfIncludes true
 git config --global init.defaultBranch main
-git config --global core.editor "code --wait"
 git config --global pull.rebase true
 git config --global merge.ff false
 git config --global rebase.autoStash true
 
-# Git SSH signing (works on both macOS and Linux)
+# Git SSH signing
 git config --global gpg.format ssh
 git config --global commit.gpgsign true
-git config --global user.signingkey "~/.ssh/id_ed25519"
+git config --global gpg.ssh.allowedSignersFile "~/.ssh/allowed_signers"
 
-# Create allowed_signers file for commit verification (read pubkey dynamically)
+# Create allowed_signers file for commit verification
 mkdir -p "$HOME/.ssh"
 if [[ -f "$HOME/.ssh/id_ed25519.pub" ]]; then
     PUBKEY=$(cat "$HOME/.ssh/id_ed25519.pub")
     echo "cpd@duck.com ${PUBKEY}" > "$HOME/.ssh/allowed_signers"
+    echo "  ✓ Git SSH allowed_signers updated"
 else
-    echo "⚠️  SSH public key not found at ~/.ssh/id_ed25519.pub"
-    echo "   Run 'config secrets' after bootstrap to fetch keys, then re-run bootstrap"
+    echo "  ⚠️  SSH public key not yet available (secrets.sh will set this up)"
 fi
-git config --global gpg.ssh.allowedSignersFile "~/.ssh/allowed_signers"
 
-echo "  ✓ Git SSH signing configured"
+# Configure 1Password op-ssh-sign for commit signing (platform-specific)
+# On interactive machines: biometric-authenticated signing, no private key needed
+# On headless machines: falls back to key-file signing
+case "$OS" in
+    macos)
+        OP_SSH_SIGN="/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+        ;;
+    linux)
+        OP_SSH_SIGN="/opt/1Password/op-ssh-sign"
+        ;;
+esac
+
+if [[ -f "$OP_SSH_SIGN" ]]; then
+    git config --global gpg.ssh.program "$OP_SSH_SIGN"
+    # With op-ssh-sign, use public key content as signing key (1Password resolves it)
+    if [[ -f "$HOME/.ssh/id_ed25519.pub" ]]; then
+        PUBKEY_CONTENT=$(awk '{print $1" "$2}' "$HOME/.ssh/id_ed25519.pub")
+        git config --global user.signingkey "$PUBKEY_CONTENT"
+    fi
+    echo "  ✓ Git signing via 1Password op-ssh-sign (biometric)"
+else
+    # Headless fallback: sign with key file on disk
+    git config --global user.signingkey "~/.ssh/id_ed25519"
+    echo "  ✓ Git signing via SSH key file (headless fallback)"
+fi
+
+# Configure gh credential helper (platform-specific path)
+if command -v gh &> /dev/null; then
+    case "$OS" in
+        macos)
+            GH_PATH="/opt/homebrew/bin/gh"
+            ;;
+        linux)
+            GH_PATH=$(which gh)
+            ;;
+    esac
+    git config --global credential.https://github.com.helper ""
+    git config --global credential.https://github.com.helper "!${GH_PATH} auth git-credential"
+    git config --global credential.https://gist.github.com.helper ""
+    git config --global credential.https://gist.github.com.helper "!${GH_PATH} auth git-credential"
+    echo "  ✓ Git credential helper configured for GitHub CLI"
+fi
+
+# Set editor to code only on non-headless machines
+if ${HEADLESS}; then
+    git config --global core.editor "vim"
+else
+    git config --global core.editor "code --wait"
+fi
 
 echo "✅ Git configured"
 echo ""
 
-# 8. Initialize git repo for dotfiles (if not already initialized)
+# 9. Setup 1Password shell plugins (gh, aws, etc.)
+echo "🔌 Setting up 1Password shell plugins..."
+if ! ${HEADLESS} && command -v gh &> /dev/null; then
+    if [[ ! -f "${HOME}/.config/op/plugins.sh" ]]; then
+        echo "  Initializing gh plugin..."
+        op plugin init gh 2>/dev/null && \
+            echo "  ✓ GitHub CLI shell plugin configured" || \
+            echo "  ⚠️  Could not init gh plugin (set up manually: op plugin init gh)"
+    else
+        echo "  ✓ Shell plugins already configured"
+    fi
+else
+    if ${HEADLESS}; then
+        echo "  ⚠️  Headless mode — skipping shell plugins (gh uses token from 1Password)"
+    fi
+fi
+echo ""
+
+# 10. Initialize git repo for dotfiles (if not already initialized)
 if [[ ! -d .git ]]; then
     echo "📦 Initializing git repository..."
     git init
@@ -184,5 +300,12 @@ echo "Next steps:"
 echo "  1. Restart your terminal (exec zsh)"
 echo "  2. Your config will auto-sync on terminal startup"
 echo "  3. Use 'config edit' to edit configs"
-echo "  4. SSH config is ready with all hosts configured"
+echo "  4. Use 'op-env' in projects with op://Private/... references"
+if ${HEADLESS}; then
+    echo ""
+    echo "Headless mode notes:"
+    echo "  - Persist OP_SERVICE_ACCOUNT_TOKEN in your server's environment"
+    echo "  - Git signing uses key file (~/.ssh/id_ed25519)"
+    echo "  - SSH uses key file (no 1Password agent on headless)"
+fi
 echo ""

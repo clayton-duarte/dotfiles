@@ -10,7 +10,7 @@ dotfiles/
 ├── packages.json          # Single source of truth for all dependencies
 ├── .config/zsh/
 │   ├── .zshenv            # Environment variables & PATH (also symlinked to ~/.zshenv)
-│   ├── .zshrc             # Main Zsh config entrypoint (Oh My Zsh + agnoster)
+│   ├── .zshrc             # Main Zsh config entrypoint (Oh My Zsh + zhann)
 │   └── modules/
 │       ├── git.zsh        # Git workflow functions
 │       ├── dev.zsh        # Development tool functions
@@ -57,7 +57,7 @@ config reload     # Reload Zsh config
 - Linux scripts must detect distro via `/etc/os-release`
 - 1Password agent paths differ by OS—use case statements
 - Plugin management via **Oh My Zsh** (built-in + custom plugins in `$ZSH_CUSTOM`)
-- Prompt via **agnoster** theme (powerline style, requires Nerd/Powerline font)
+- Prompt via **zhann** theme (minimal, no special font required)
 
 ## Security
 
@@ -65,11 +65,19 @@ config reload     # Reload Zsh config
 - `secrets.zsh`, SSH keys, `.env`, `*.key`, `*.pem`, tokens
 - See [.gitignore](.gitignore) for full list
 
-**Secrets pattern**: Store in 1Password "Development API Tokens" item → fetch via `op` CLI → write to `~/.config/zsh/secrets.zsh`
+**Secrets pattern**: All secrets live in the 1Password `Private` vault:
+- `Private/SSH Key` (Secure Note) → `~/.ssh/id_ed25519{,.pub}`
+- `Private/Environment` (Password) → `~/.config/zsh/secrets.zsh` (dynamic fields, incl. GH_TOKEN)
+- Per-project: use `.env.op` files with `op://Private/Environment/FIELD` references
+- Per-project: use `.env.op` files with `op://Private/Environment/FIELD` references
 
 ## Integration Points
 
-- **1Password CLI**: All secrets via `op read` commands
+- **1Password CLI**: All secrets from `Private` vault via `op read op://Private/...`
+- **1Password Shell Plugins**: `gh` (and others) authenticate via `~/.config/op/plugins.sh`
+- **1Password op-ssh-sign**: Biometric commit signing on interactive machines
 - **SSH agent**: 1Password agent via `SSH_AUTH_SOCK` (set in .zshenv)
-- **Git SSH signing**: Configured in [.gitconfig](.gitconfig)
-- **GitHub CLI**: Authenticated via 1Password token
+- **Git SSH signing**: Configured in [.gitconfig](.gitconfig), signing program set by bootstrap
+- **GitHub CLI**: Shell plugin (interactive) or token from vault (headless)
+- **Service accounts**: Set `OP_SERVICE_ACCOUNT_TOKEN` for headless Linux servers
+- **Environment injection**: `op-env` function uses `op run --env-file` with `op://` references

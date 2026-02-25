@@ -1,7 +1,7 @@
 [user]
 	email = cpd@duck.com
 	name = cpd
-	signingkey = ~/.ssh/id_ed25519
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJfW9sXv6Shm1s9sMDZtUN51InfP4oclRwZnrIKKeRdb
 
 [push]
 	autoSetupRemote = true
@@ -19,7 +19,7 @@
 [rebase]
 	autoStash = true
 
-# SSH commit signing
+# SSH commit signing (op-ssh-sign program set by bootstrap.sh per-platform)
 [gpg]
 	format = ssh
 
@@ -28,11 +28,7 @@
 
 [gpg "ssh"]
 	allowedSignersFile = ~/.ssh/allowed_signers
-[credential "https://github.com"]
-	helper = 
-	helper = !/opt/homebrew/bin/gh auth git-credential
-[credential "https://gist.github.com"]
-	helper = 
-	helper = !/opt/homebrew/bin/gh auth git-credential
+	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+
 [init]
 	defaultBranch = main
