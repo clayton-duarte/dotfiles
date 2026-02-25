@@ -11,6 +11,11 @@ if [[ -f "${ZDOTDIR}/secrets.zsh" ]]; then
     source "${ZDOTDIR}/secrets.zsh"
 fi
 
+# Load SSH key into agent (if not already loaded)
+if [[ -f "${HOME}/.ssh/id_ed25519" ]] && ! ssh-add -l 2>/dev/null | grep -q "$(ssh-keygen -lf "${HOME}/.ssh/id_ed25519.pub" 2>/dev/null | awk '{print $2}')"; then
+    ssh-add "${HOME}/.ssh/id_ed25519" 2>/dev/null
+fi
+
 # =============================================================================
 # 1Password Shell Plugins (auto-injects credentials for gh, aws, etc.)
 # =============================================================================

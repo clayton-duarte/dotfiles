@@ -29,10 +29,18 @@ case "$(uname)" in
         elif [[ -d /usr/lib/jvm/default-java ]]; then
             export JAVA_HOME="/usr/lib/jvm/default-java"
         fi
+
+        # Persistent ssh-agent (reuse across sessions via socket file)
+        SSH_AGENT_SOCK="${HOME}/.ssh/agent.sock"
+        if [[ ! -S "$SSH_AGENT_SOCK" ]]; then
+            eval "$(ssh-agent -a "$SSH_AGENT_SOCK" 2>/dev/null)" > /dev/null
+        fi
+        export SSH_AUTH_SOCK="$SSH_AGENT_SOCK"
         ;;
     Darwin)
         # Set JAVA_HOME to Android Studio's bundled JDK
         export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+        # macOS ssh-agent with Keychain integration (system default)
         ;;
     *)
         echo "⚠️  Unsupported OS"
