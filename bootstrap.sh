@@ -208,13 +208,6 @@ if command -v gh &> /dev/null; then
     echo "  ✓ Git credential helper configured for GitHub CLI"
 fi
 
-# Set editor to code only on non-headless machines
-if ${HEADLESS}; then
-    git config --global core.editor "vim"
-else
-    git config --global core.editor "code --wait"
-fi
-
 echo "✅ Git configured"
 echo ""
 
