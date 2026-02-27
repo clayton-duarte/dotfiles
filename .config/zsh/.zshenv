@@ -31,11 +31,16 @@ case "$(uname)" in
         fi
 
         # Persistent ssh-agent (reuse across sessions via socket file)
+        # Handles stale sockets from dead agents (e.g. after reboot)
         SSH_AGENT_SOCK="${HOME}/.ssh/agent.sock"
-        if [[ ! -S "$SSH_AGENT_SOCK" ]]; then
-            eval "$(ssh-agent -a "$SSH_AGENT_SOCK" 2>/dev/null)" > /dev/null
-        fi
         export SSH_AUTH_SOCK="$SSH_AGENT_SOCK"
+        if ! ssh-add -l &>/dev/null; then
+            if [[ $? -eq 2 ]]; then
+                # Agent unreachable — remove stale socket and start fresh
+                rm -f "$SSH_AGENT_SOCK"
+                eval "$(ssh-agent -a "$SSH_AGENT_SOCK" 2>/dev/null)" > /dev/null
+            fi
+        fi
         ;;
     Darwin)
         # Set JAVA_HOME to Android Studio's bundled JDK
