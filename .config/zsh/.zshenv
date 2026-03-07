@@ -34,12 +34,12 @@ case "$(uname)" in
         # Handles stale sockets from dead agents (e.g. after reboot)
         SSH_AGENT_SOCK="${HOME}/.ssh/agent.sock"
         export SSH_AUTH_SOCK="$SSH_AGENT_SOCK"
-        if ! ssh-add -l &>/dev/null; then
-            if [[ $? -eq 2 ]]; then
-                # Agent unreachable — remove stale socket and start fresh
-                rm -f "$SSH_AGENT_SOCK"
-                eval "$(ssh-agent -a "$SSH_AGENT_SOCK" 2>/dev/null)" > /dev/null
-            fi
+        ssh-add -l &>/dev/null
+        ssh_status=$?
+        if [[ $ssh_status -eq 2 ]]; then
+            # Agent unreachable — remove stale socket and start fresh
+            rm -f "$SSH_AGENT_SOCK"
+            eval "$(ssh-agent -a "$SSH_AGENT_SOCK" 2>/dev/null)" > /dev/null
         fi
         ;;
     Darwin)
