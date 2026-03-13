@@ -411,3 +411,84 @@ Better:   1Password → op inject → process env (memory only)
 | Lazy ssh-agent | ~5 | Faster shell startup |
 | **SSH improvements** | ~0 | Faster connections, no shadowing |
 | **1Password improvements** | ~50 | No secrets on disk, better security |
+
+---
+
+# Analysis
+
+## Conflicts & Incompatibilities
+
+| Conflict | Ideas | Resolution |
+|----------|-------|------------|
+| **Chezmoi negates custom work** | #9 vs #8, #10, #1-7 | If you adopt chezmoi, skip all other refactoring — it handles everything |
+| **Homebrew-only makes jq bootstrap obsolete** | #8 vs #2 | If adopting Brewfile, no packages.json to parse → #2 is unnecessary |
+| **1Password SSH Agent vs standard agent** | #12C vs #7 | Choose one: 1Password agent (no key on disk) OR optimize standard agent |
+| **op inject vs secrets.sh** | #12A vs #1 | If using `op inject`, no `secrets.zsh` exists → #1 consolidation is moot |
+| **Makefile assumes keeping bootstrap.sh** | #10 vs #9 | Makefile replaces bootstrap.sh; chezmoi replaces both |
+
+---
+
+## Prioritization Matrix
+
+| # | Idea | Urgency | Effort | Impact | Score | Notes |
+|---|------|:-------:|:------:|:------:|:-----:|-------|
+| **11** | SSH improvements | Low | Low | High | **A** | Quick win, no dependencies, immediate benefit |
+| **5** | Git aliases | Low | Low | Low | **B** | 5 min change, cleaner code |
+| **6** | Remove `command` prefix | Low | Low | Low | **B** | Trivial cleanup |
+| **3** | Subshells in config | Low | Low | Medium | **B** | Simple, reduces bugs |
+| **7** | Lazy ssh-agent | Medium | Low | Medium | **B** | Faster shell startup |
+| **4** | Timeout helper | Low | Low | Medium | **B** | DRY improvement |
+| **1** | Consolidate git signing | Low | Low | Medium | **B** | Only if keeping secrets.sh |
+| **8** | Homebrew-only | Low | Medium | High | **C** | Big simplification, but changes workflow |
+| **10** | Makefile | Low | Medium | High | **C** | Pairs well with #8 |
+| **12** | 1Password improvements | Medium | Medium | High | **C** | Security uplift, requires decision |
+| **2** | Move jq to bootstrap | Low | Low | Low | **D** | Skip if doing #8 |
+| **9** | Chezmoi migration | Low | High | High | **E** | Nuclear option — replaces everything |
+
+**Scoring:**
+- **A** = Do first (high impact, low effort)
+- **B** = Quick wins (batch together)
+- **C** = Strategic (plan carefully)
+- **D** = Skip/defer
+- **E** = Major decision (evaluate separately)
+
+---
+
+## Recommended Execution Order
+
+### Phase 1: Quick Wins (~1 hour)
+```
+#11 → #5 → #6 → #3 → #7 → #4
+```
+No conflicts, immediate improvements, can do all in one session.
+
+### Phase 2: Decision Point
+
+Choose ONE path:
+
+| Path | Do | Skip |
+|------|-----|------|
+| **A: Keep custom** | #8 + #10 + #12 | #9, #2 |
+| **B: Migrate to chezmoi** | #9 | #1-8, #10 |
+
+### Phase 3: If Path A
+```
+#8 (Homebrew-only) → #10 (Makefile) → #12 (1Password)
+```
+These build on each other. Do #12 last since it requires choosing between `op inject` vs disk secrets.
+
+---
+
+## Decision Tree
+
+```
+Start
+  │
+  ├─► Do you want full control? 
+  │     │
+  │     ├─ Yes → Path A (keep custom, do #8 + #10 + #12)
+  │     │
+  │     └─ No → Path B (chezmoi, skip everything else)
+  │
+  └─► Either way, do Phase 1 quick wins first
+```
