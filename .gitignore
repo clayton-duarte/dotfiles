@@ -6,6 +6,7 @@
 # Secrets and tokens (actual values, not scripts)
 secrets.zsh
 .zsh_history
+.npmrc          # contains registry _authToken values — never commit
 .env
 .env.*
 *.key
