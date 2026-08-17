@@ -13,6 +13,13 @@ export ZDOTDIR="${HOME}/.config/zsh"
 export ANDROID_HOME="${HOME}/Library/Android/sdk"
 export BASE_BRANCH="main"
 
+# Python CLI tools (pipx / uv) default to dropping shims in ~/.local/bin, which
+# is deliberately NOT on PATH — global binaries all live in /usr/local/bin.
+# Consequence: installs need root, e.g. `sudo -E pipx install <tool>`.
+export PIPX_BIN_DIR="/usr/local/bin"
+export PIPX_MAN_DIR="/usr/local/share/man"
+export UV_TOOL_BIN_DIR="/usr/local/bin"
+
 # Claude Code / Vertex AI
 export CLAUDE_CODE_USE_VERTEX=1
 export CLOUD_ML_REGION="global"

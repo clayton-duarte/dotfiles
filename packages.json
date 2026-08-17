@@ -45,6 +45,25 @@
     "brew": "n",
     "install_cmd": "curl -L https://git.io/n-install | bash -s -- -y"
   },
+  "uv": {
+    "brew": "uv",
+    "install_cmd": "curl -LsSf https://astral.sh/uv/install.sh | sh"
+  },
+  "pipx": {
+    "brew": "pipx",
+    "apt": "pipx",
+    "dnf": "pipx",
+    "pacman": "python-pipx"
+  },
+  "ruff": {
+    "brew": "ruff",
+    "dnf": "ruff",
+    "pacman": "ruff"
+  },
+  "terraform": {
+    "tap": "hashicorp/tap",
+    "brew": "hashicorp/tap/terraform"
+  },
   "colima": {
     "brew": "colima"
   },

@@ -32,6 +32,11 @@ echo "📦 Installing packages from packages.json..."
 BREWFILE=$(mktemp)
 trap "rm -f $BREWFILE" EXIT
 
+# Extract taps first — formulae like hashicorp/tap/terraform need their tap
+# declared before the brew line that references it
+jq -r 'to_entries[] | select(.value.tap) | .value.tap' "$PACKAGES_JSON" | sort -u | \
+    while IFS= read -r tap; do echo "tap \"$tap\""; done >> "$BREWFILE"
+
 # Extract brew formulae
 jq -r 'to_entries[] | select(.value.brew) | "brew \"\(.value.brew)\"" ' "$PACKAGES_JSON" >> "$BREWFILE"
 
