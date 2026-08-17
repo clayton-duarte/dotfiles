@@ -105,8 +105,12 @@ __startup() {
         return
     fi
 
-    # Show neofetch if installed
-    if command -v neofetch &>/dev/null; then
+    # Show system info. Prefer fastfetch — neofetch's upstream is archived and
+    # Homebrew disabled the formula (2025-05-04). Fall back to neofetch so
+    # machines that still have it keep working until they re-run the installer.
+    if command -v fastfetch &>/dev/null; then
+        fastfetch
+    elif command -v neofetch &>/dev/null; then
         neofetch
     fi
 

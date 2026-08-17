@@ -29,11 +29,11 @@
     "dnf": "curl",
     "pacman": "curl"
   },
-  "neofetch": {
-    "brew": "neofetch",
-    "apt": "neofetch",
-    "dnf": "neofetch",
-    "pacman": "neofetch"
+  "fastfetch": {
+    "brew": "fastfetch",
+    "apt": "fastfetch",
+    "dnf": "fastfetch",
+    "pacman": "fastfetch"
   },
   "htop": {
     "brew": "htop",
