@@ -61,7 +61,6 @@ esac
 typeset -U path  # Deduplicate PATH entries
 
 path=(
-    "${HOME}/.local/bin"   # npm global prefix (claude, etc.)
     /usr/local/bin
     "${ANDROID_HOME}/emulator"
     "${ANDROID_HOME}/platform-tools"
