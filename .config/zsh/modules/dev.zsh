@@ -81,12 +81,16 @@ op-env() {
         return 1
     fi
 
+    # Pin the account — op otherwise targets whichever one you signed into last,
+    # so op://Private/... refs resolve against a work account and come up empty.
+    local account="${OP_ACCOUNT:-my.1password.com}"
+
     if [[ ${#cmd[@]} -eq 0 ]]; then
         # No command — inject env and start interactive subshell
         echo "🔐 Loading environment from $env_file..."
-        op run --env-file="$env_file" -- zsh
+        op run --account "$account" --env-file="$env_file" -- zsh
     else
         # Run the specified command with injected env
-        op run --env-file="$env_file" -- "${cmd[@]}"
+        op run --account "$account" --env-file="$env_file" -- "${cmd[@]}"
     fi
 }

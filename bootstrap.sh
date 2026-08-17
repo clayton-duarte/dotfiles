@@ -62,16 +62,28 @@ fi
 
 echo ""
 
-# 2. Authenticate with 1Password
-echo "🔐 Authenticating with 1Password..."
-if ! op whoami &> /dev/null; then
+# Define the vault name (single source of truth)
+OP_VAULT="Private"
+
+# Pin the account. `op` defaults to whichever account you signed into last
+# (config `latest_signin`), so signing into a work account silently redirects
+# every lookup and it fails with "isn't an item in the Private vault".
+# Override with: OP_ACCOUNT=other.1password.com ./bootstrap.sh
+export OP_ACCOUNT="${OP_ACCOUNT:-my.1password.com}"
+
+# 2. Authenticate with 1Password and confirm the vault is reachable.
+# Deliberately gated on a real read instead of `op whoami`: with 1Password
+# desktop-app integration ("session delegation") whoami exits non-zero even
+# when every lookup succeeds, which would demand a pointless signin.
+echo "🔐 Authenticating with 1Password (account: $OP_ACCOUNT)..."
+if ! op vault get "$OP_VAULT" &> /dev/null; then
     echo "🔑 Please sign in to 1Password..."
-    eval "$(op signin)" || {
+    eval "$(op signin --account "$OP_ACCOUNT")" || {
         echo "❌ Failed to authenticate with 1Password"
         echo "Please check your credentials and try again"
         exit 1
     }
-    if ! op whoami &> /dev/null; then
+    if ! op vault get "$OP_VAULT" &> /dev/null; then
         echo "❌ Authentication failed"
         exit 1
     fi
@@ -81,9 +93,6 @@ else
 fi
 
 echo ""
-
-# Define the vault name (single source of truth)
-OP_VAULT="Private"
 
 # 3. Verify the Private vault exists
 echo "🗄️  Checking 1Password vault..."

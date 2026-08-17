@@ -15,7 +15,14 @@ set -e
 
 OP_VAULT="Private"
 
-echo "🔐 Fetching secrets from 1Password ($OP_VAULT vault)..."
+# Pin the account. `op` defaults to whichever account you signed into last
+# (config `latest_signin`), so signing into a work account silently redirects
+# every lookup below and they fail with "isn't an item in the Private vault"
+# even though the data is right there on the personal account.
+# Override with: OP_ACCOUNT=other.1password.com ./scripts/secrets.sh
+export OP_ACCOUNT="${OP_ACCOUNT:-my.1password.com}"
+
+echo "🔐 Fetching secrets from 1Password ($OP_VAULT vault, account: $OP_ACCOUNT)..."
 
 # Check if 1Password CLI is installed
 if ! command -v op &> /dev/null; then
@@ -23,23 +30,21 @@ if ! command -v op &> /dev/null; then
     exit 1
 fi
 
-# Authenticate with 1Password
-if ! op whoami &> /dev/null; then
+# Authenticate with 1Password, and verify the vault is reachable.
+# Deliberately gated on a real read instead of `op whoami`: with 1Password
+# desktop-app integration ("session delegation") whoami exits non-zero even
+# when every lookup below succeeds, which would demand a pointless signin on a
+# perfectly working machine.
+if ! op vault get "$OP_VAULT" &> /dev/null; then
     echo "🔑 Please sign in to 1Password..."
-    eval "$(op signin)" || {
+    eval "$(op signin --account "$OP_ACCOUNT")" || {
         echo "❌ Failed to authenticate with 1Password"
         exit 1
     }
-    if ! op whoami &> /dev/null; then
-        echo "❌ Authentication failed"
+    if ! op vault get "$OP_VAULT" &> /dev/null; then
+        echo "❌ Vault '$OP_VAULT' not reachable on account $OP_ACCOUNT"
         exit 1
     fi
-fi
-
-# Verify vault exists
-if ! op vault get "$OP_VAULT" &> /dev/null; then
-    echo "❌ Vault '$OP_VAULT' not found in 1Password"
-    exit 1
 fi
 
 # =============================================================================
